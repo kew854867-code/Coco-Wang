@@ -89,6 +89,7 @@
 
     /* bento */
     .bento { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 196px; gap: 12px; }
+    .bento-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .tile { position: relative; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; color: var(--ink); overflow: hidden; transition: transform 180ms ease, box-shadow 180ms ease; }
     .tile:hover { transform: translateY(-3px); box-shadow: 0 12px 28px -18px rgba(15,15,15,0.35); }
     .tile .t-label { color: inherit; opacity: 0.7; }
@@ -208,6 +209,7 @@
       .wrap { padding: 0 24px; }
       .t-display { font-size: 44px; }
       .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(188px, auto); }
+      .bento-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .evhead .evt-sub { font-size: 21px; }
       .tile.img.poster img { object-fit: contain; }
       .bento.r300 .tile { grid-column: span 2; }
@@ -234,6 +236,7 @@
       .t-display { font-size: 36px; }
       .t-num, .tile .quad .t-num { font-size: 30px; }
       .bento { gap: 10px; grid-auto-rows: minmax(172px, auto); }
+      .bento-3 { grid-template-columns: 1fr; }
       .tile { padding: 16px; border-radius: 14px; }
       .tile .title { font-size: 17px; }
       .paths { grid-template-columns: 1fr; }
@@ -529,26 +532,19 @@
         <h2 class="t-head">AI systems I build</h2>
         <span class="t-label">02</span>
       </div>
-      <div class="bento" style="grid-auto-rows: minmax(196px, auto);">
-        <a class="tile img span2" href="https://drive.google.com/file/d/1Hy8ZlcEpoOYopQkcMmW2a6S4GafxLwrN/view?usp=sharing" target="_blank" rel="noopener">
+      <div class="bento bento-3" style="grid-auto-rows: minmax(196px, auto);">
+        <a class="tile img" href="https://drive.google.com/file/d/1Hy8ZlcEpoOYopQkcMmW2a6S4GafxLwrN/view?usp=sharing" target="_blank" rel="noopener">
           <img src="img/v4/outreach-poster.jpg" alt="Outreach automation walkthrough">
           <span class="play"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span>
           <div class="cap">60-second walkthrough</div>
         </a>
-        <div class="tile lime span2">
+        <div class="tile lime">
           <p class="t-label">Outreach automation</p>
           <div class="bottom">
-            <p class="t-small">Built for a robotics company — runs the whole outreach loop without anyone clicking through it. Every hour it finds companies, scores fit, identifies the decision-maker, verifies contact info, and writes the email. Approve once and it sends on its own, timed to business hours, tracking every contact and follow-up so nobody gets reached twice.</p>
+            <p class="t-small">Finds companies, scores fit, identifies the decision-maker, verifies contact info, and writes the email — hourly, unattended. Approve once and it sends, tracks every contact, and never repeats one.</p>
           </div>
         </div>
-        <div class="tile ink span2">
-          <p class="t-label">Robot video pipeline</p>
-          <div class="bottom">
-            <p class="title">Every night at midnight it picks a story, cuts the footage, writes, voices and captions a video.</p>
-            <p class="t-small">First video took 40 revisions. Now one pass, zero hands. Nine videos in nine days. Same pipeline cuts product videos for robotics companies.</p>
-          </div>
-        </div>
-        <div class="tile white span2">
+        <div class="tile white">
           <p class="t-label">Robotics Events Calendar</p>
           <div class="funnel" style="margin: 10px 0;">
             <div class="bar"></div>
@@ -556,6 +552,15 @@
             <div class="cap"><span>8000+ scanned</span><span>29 kept</span></div>
           </div>
           <p class="t-small">200+ sources, every week · <a class="in" href="https://kew854867-code.github.io/bay-area-robotics-calendar/" target="_blank" rel="noopener">open</a></p>
+        </div>
+      </div>
+      <div class="bento" style="grid-template-columns: 1fr; grid-auto-rows: minmax(140px, auto); margin-top: 12px;">
+        <div class="tile ink">
+          <p class="t-label">Robotics Video Pipeline</p>
+          <div class="bottom">
+            <p class="t-small">It automatically tracks trending topics, researches the story, sources footage, writes the script, generates the voiceover and captions, and adds an AI avatar.</p>
+            <p class="t-small">The first video took 40 revisions. Now it's one pass, with zero human intervention.</p>
+          </div>
         </div>
       </div>
       <div class="vids"><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7493546516435861505/" target="_blank" rel="noopener"><img src="img/v4/vid-0.jpg" alt="Robots Fighting Robots"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Robots Fighting Robots</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7500190963743711232/" target="_blank" rel="noopener"><img src="img/v4/vid-1.jpg" alt="Robot Long Jump"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Robot Long Jump</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7500553456001302528/" target="_blank" rel="noopener"><img src="img/v4/vid-3.jpg" alt="Twelve Months"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Twelve Months</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7501444140996505600/" target="_blank" rel="noopener"><img src="img/v4/vid-6.jpg" alt="Three Cities, One Week"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Three Cities, One Week</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7502047985963487232/" target="_blank" rel="noopener"><img src="img/v4/vid-7.jpg" alt="Made in Serbia"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Made in Serbia</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7502384072837615616/" target="_blank" rel="noopener"><img src="img/v4/vid-8.jpg" alt="The Brain Just Got a New Competitor"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">The Brain Just Got a New Competitor</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7500991076426645506/" target="_blank" rel="noopener"><img src="img/v4/vid-5.jpg" alt="MicroDuck"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">MicroDuck</span></a></div>
