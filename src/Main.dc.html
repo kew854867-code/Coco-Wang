@@ -1,0 +1,613 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --ink: #0F0F0F;
+      --ink-2: #5C5C5C;
+      --ink-3: #9A9A9A;
+      --line: #E8E8E8;
+      --lime: #D6FF4B;
+      --tangerine: #FF6A2B;
+      --lilac: #C9B6FF;
+      --sky: #BFE3FF;
+      --mint: #B8F2CF;
+      --sun: #FFD84D;
+      --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+      --sans: "Geist", "Helvetica Neue", Arial, sans-serif;
+      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); scroll-behavior: smooth; }
+    body { font-family: var(--sans); color: var(--ink); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    a { color: var(--ink); text-decoration: none; }
+    a:hover { color: var(--accent); }
+    p, h1, h2, h3 { margin: 0; }
+    mark { background: var(--lime); color: var(--ink); padding: 0 0.14em; margin: 0 -0.04em; border-radius: 0.18em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+    .page { background: var(--bg); min-height: 100%; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+    /* type: three tiers */
+    .t-display { font-family: var(--display); font-size: 54px; line-height: 1.0; letter-spacing: -0.03em; font-weight: 800; font-variation-settings: "opsz" 96; text-wrap: balance; }
+    .t-head { font-family: var(--display); font-size: 28px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 700; text-wrap: balance; }
+    .t-num { font-family: var(--display); font-size: 40px; line-height: 1; letter-spacing: -0.03em; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .t-body { font-size: 15px; line-height: 1.6; color: var(--ink-2); text-wrap: pretty; }
+    .t-lead { font-size: 18px; line-height: 1.5; color: var(--ink-2); text-wrap: pretty; }
+    .t-small { font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+    .t-label { font-family: var(--mono); font-size: 12px; line-height: 1.4; letter-spacing: 0.02em; color: var(--ink-3); font-weight: 500; }
+    .arrow { width: 12px; height: 12px; flex: none; }
+
+    /* nav */
+    .nav { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,0.86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .nav .wrap { height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav .name { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 10px; }
+    .nav .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+    .navlinks { display: flex; gap: 24px; align-items: center; }
+    .navlinks a { font-size: 14px; color: var(--ink-2); }
+    .navlinks a:hover { color: var(--ink); }
+    .navlinks .ext { display: inline-flex; align-items: center; gap: 5px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 999px; font-size: 14px; font-weight: 500; border: 1px solid transparent; transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.primary:hover { color: #fff; filter: brightness(1.08); }
+    .btn.ghost { border-color: var(--line); color: var(--ink); }
+    .btn.ghost:hover { border-color: var(--ink); color: var(--ink); }
+    .btn.sm { height: 34px; padding: 0 14px; font-size: 13px; }
+
+    /* hero */
+    .hero { padding: 88px 0 72px; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 56px; align-items: center; animation: rise 600ms cubic-bezier(.2,.7,.2,1) both; }
+    .hero-inner { display: flex; flex-direction: column; gap: 26px; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .portrait { border-radius: 24px; overflow: hidden; aspect-ratio: 4 / 5; background: #F2F2F2; width: 100%; max-width: 320px; justify-self: end; }
+    .portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .idcard { display: flex; flex-direction: column; gap: 3px; padding-top: 22px; border-top: 1px solid var(--line); }
+    .idcard .line1 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+    .idcard .line2 { font-size: 14px; color: var(--ink-3); }
+
+    /* section frame */
+    .section { padding: 88px 0 0; }
+    .section:last-of-type { padding-bottom: 88px; }
+    .shead { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+    .shead .t-label { flex: none; }
+
+    /* bento */
+    .bento { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 196px; gap: 12px; }
+    .tile { position: relative; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; color: var(--ink); overflow: hidden; transition: transform 180ms ease, box-shadow 180ms ease; }
+    .tile:hover { transform: translateY(-3px); box-shadow: 0 12px 28px -18px rgba(15,15,15,0.35); }
+    .tile .t-label { color: inherit; opacity: 0.7; }
+    .tile .t-small { color: inherit; opacity: 0.8; }
+    .tile .bottom { display: flex; flex-direction: column; gap: 6px; }
+    .tile.span2 { grid-column: span 2; }
+    .tile.tall { grid-row: span 2; }
+    .tile.tangerine { background: var(--tangerine); }
+    .tile.lime { background: var(--lime); }
+    .tile.lilac { background: var(--lilac); }
+    .tile.sky { background: var(--sky); }
+    .tile.sun { background: var(--sun); }
+    .tile.mint { background: var(--mint); }
+    .tile.ink { background: var(--ink); color: #fff; }
+    .tile.white { background: #fff; border: 1px solid var(--line); }
+    .tile .quad { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; margin-top: 16px; }
+    .tile .quad .t-num { font-size: 36px; }
+    .tile.tall:not(.span2) .quad .t-num { font-size: 28px; }
+    .tile.tall:not(.span2) .quad { gap: 12px 10px; }
+    .tile a.in { color: inherit; border-bottom: 1px solid currentColor; padding-bottom: 1px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
+    .tile a.in:hover { opacity: 0.7; }
+    .tile .title { font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.15; letter-spacing: -0.02em; }
+    .play { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; }
+    .play svg { width: 16px; height: 16px; margin-left: 2px; }
+    .tile.img .play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    .funnel { display: flex; flex-direction: column; gap: 8px; }
+    .funnel .bar { height: 10px; border-radius: 3px; background: var(--line); }
+    .funnel .dots { display: flex; gap: 3px; flex-wrap: wrap; }
+    .funnel .dots i { width: 7px; height: 7px; border-radius: 2px; background: var(--accent); display: block; }
+    .funnel .cap { display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+    .photo-slot { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+    .frame { flex: 1; border-radius: 10px; background: repeating-linear-gradient(135deg, #F3F3F3 0 8px, #FAFAFA 8px 16px); margin: 10px 0 12px; }
+
+    /* ledger */
+    .ledger { border-top: 1px solid var(--line); }
+    .row { display: grid; grid-template-columns: 48px 1.1fr 1.5fr 190px; gap: 24px; padding: 24px 0; border-bottom: 1px solid var(--line); align-items: start; }
+    .row .idx { font-family: var(--mono); font-size: 12px; color: var(--ink-3); padding-top: 4px; }
+    .row .ev { display: flex; flex-direction: column; gap: 4px; }
+    .row .ev .title { font-family: var(--display); font-weight: 700; font-size: 20px; line-height: 1.15; letter-spacing: -0.02em; }
+    .row .ev .venue { font-size: 13px; color: var(--ink-3); }
+    .row .who2 { display: flex; flex-direction: column; gap: 10px; }
+    .row .who2 .grp { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+    .row .who2 .grp .t-label { min-width: 74px; }
+    .lk { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: var(--ink); border-bottom: 1px solid var(--line); transition: border-color 160ms ease, color 160ms ease; }
+    .lk:hover { border-color: var(--accent); color: var(--accent); }
+    .row .nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+    .row .nums div { display: flex; flex-direction: column; }
+    .row .nums b { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; line-height: 1.1; }
+    .row .nums span { font-size: 12px; color: var(--ink-3); }
+
+    /* systems */
+    .sys { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .sysc { border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 16px; min-height: 300px; transition: transform 180ms ease, border-color 180ms ease; }
+    .sysc:hover { transform: translateY(-3px); border-color: #CFCFCF; }
+    .sysc .top { display: flex; justify-content: space-between; align-items: baseline; }
+    .sysc .title { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; line-height: 1.15; }
+    .sysc .viz { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+    .stack { display: flex; gap: 3px; height: 26px; border-radius: 6px; overflow: hidden; }
+    .stack span { display: block; height: 100%; }
+    .legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; font-size: 12px; color: var(--ink-2); }
+    .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+    .legend b { font-family: var(--mono); font-weight: 500; color: var(--ink); margin-right: 5px; }
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step { display: flex; align-items: center; gap: 12px; padding: 9px 0; }
+    .step .n { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: #fff; font-family: var(--mono); font-size: 11px; display: flex; align-items: center; justify-content: center; flex: none; }
+    .step + .step { border-top: 1px dashed var(--line); }
+    .step span { font-size: 14px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: #F4F4F4; color: var(--ink-2); }
+
+    /* reach */
+    .reach { font-family: var(--display); font-weight: 600; font-size: 30px; line-height: 1.35; letter-spacing: -0.02em; max-width: 900px; text-wrap: pretty; }
+    .reach mark { font-weight: 800; }
+
+    /* results + education */
+    .two { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: start; }
+    .rrow { display: grid; grid-template-columns: 92px 1fr; gap: 16px; padding: 16px 0; border-top: 1px solid var(--line); align-items: baseline; }
+    .rrow:last-child { border-bottom: 1px solid var(--line); }
+    .rrow b { font-family: var(--display); font-weight: 700; font-size: 24px; letter-spacing: -0.02em; }
+    .erow { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); align-items: baseline; }
+    .erow:last-of-type { border-bottom: 1px solid var(--line); }
+    .erow .school { font-weight: 600; font-size: 14px; }
+    .erow .deg { font-size: 13px; color: var(--ink-2); }
+    .erow .yr { font-family: var(--mono); font-size: 12px; color: var(--ink-3); flex: none; }
+    .cert { margin-top: 20px; border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; }
+    .cert .sq { width: 44px; height: 56px; border-radius: 6px; background: repeating-linear-gradient(135deg, #F3F3F3 0 6px, #FAFAFA 6px 12px); flex: none; }
+
+    /* contact */
+    .paths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .path { border-radius: 18px; padding: 28px; min-height: 260px; display: flex; flex-direction: column; justify-content: space-between; gap: 20px; transition: transform 180ms ease; }
+    .path:hover { transform: translateY(-3px); }
+    .path.blue { background: var(--accent); color: #fff; }
+    .path.lime { background: var(--lime); color: var(--ink); }
+    .path .t-label { color: inherit; opacity: 0.75; }
+    .path .title { font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: -0.03em; line-height: 1.05; }
+    .path p { font-size: 15px; line-height: 1.5; opacity: 0.9; max-width: 380px; }
+    .path .go { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px; border-radius: 999px; font-size: 14px; font-weight: 500; align-self: flex-start; }
+    .path.blue .go { background: #fff; color: var(--ink); }
+    .path.blue .go:hover { color: var(--ink); }
+    .path.lime .go { background: var(--ink); color: #fff; }
+    .path.lime .go:hover { color: #fff; }
+    .close { background: var(--accent); color: #fff; border-radius: 24px; padding: 60px 52px; display: flex; flex-direction: column; align-items: flex-start; }
+    .close .q { font-family: var(--display); font-weight: 800; font-size: 40px; line-height: 1.1; letter-spacing: -0.03em; text-wrap: balance; }
+    .close .q + .q { margin-top: 6px; }
+    .close .ans { font-size: 18px; line-height: 1.5; max-width: 640px; margin-top: 26px; color: rgba(255,255,255,0.88); text-wrap: pretty; }
+    .close .go { display: inline-flex; align-items: center; gap: 8px; height: 50px; padding: 0 24px; border-radius: 999px; background: #fff; color: var(--ink); font-size: 15px; font-weight: 500; margin-top: 34px; transition: transform 160ms ease; }
+    .close .go:hover { transform: translateY(-2px); color: var(--ink); }
+    .close .go svg { width: 13px; height: 13px; }
+    .direct { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 12px 36px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .direct a { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 500; }
+    .direct .t-label { width: 100%; }
+
+    footer { padding: 24px 0 40px; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 0 24px; }
+      .t-display { font-size: 44px; }
+      .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: minmax(188px, auto); }
+      .evhead .evt-sub { font-size: 21px; }
+      .tile.img.poster img { object-fit: contain; }
+      .bento.r300 .tile { grid-column: span 2; }
+      .bento.r300 .tile.poster { aspect-ratio: 0.9; }
+      .tile.tall { grid-row: span 1; }
+      .tile.tall.tangerine { grid-column: span 2; }
+      .tile.span2 { grid-column: span 2; }
+      .row { grid-template-columns: 40px 1fr; }
+      .row .who2, .row .nums { grid-column: 2; }
+      .row .nums { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .sys { grid-template-columns: 1fr; }
+      .sysc { min-height: 0; }
+      .two { grid-template-columns: 1fr; gap: 32px; }
+      .close { padding: 44px 32px; }
+      .close .q { font-size: 32px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+      .portrait { max-width: 260px; aspect-ratio: 1 / 1; border-radius: 20px; justify-self: start; }
+      .reach { font-size: 26px; }
+      .navlinks a:not(.btn) { display: none; }
+      .section { padding-top: 64px; }
+    }
+    @media (max-width: 520px) {
+      .wrap { padding: 0 18px; }
+      .t-display { font-size: 36px; }
+      .t-num, .tile .quad .t-num { font-size: 30px; }
+      .bento { gap: 10px; grid-auto-rows: minmax(172px, auto); }
+      .tile { padding: 16px; border-radius: 14px; }
+      .tile .title { font-size: 17px; }
+      .paths { grid-template-columns: 1fr; }
+      .path { min-height: 0; padding: 22px; }
+      .path .title { font-size: 26px; }
+      .close { padding: 34px 24px; border-radius: 18px; }
+      .close .q { font-size: 26px; }
+      .close .ans { font-size: 16px; margin-top: 20px; }
+      .close .go { margin-top: 26px; }
+      .reach { font-size: 22px; }
+      .row .nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero { padding: 40px 0 36px; }
+      .shead { flex-direction: column; gap: 6px; align-items: flex-start; }
+    }
+
+    /* v3 additions */
+    .thesis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 8px; }
+    .thesis div { border-top: 2px solid var(--ink); padding-top: 12px; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+    .thesis div b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 2px; }
+    .record { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .col { border: 1px solid var(--line); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+    .col .title { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; line-height: 1.15; }
+    .logos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .logos div { height: 64px; border-radius: 12px; background: #F6F6F6; display: flex; align-items: center; justify-content: center; padding: 12px 16px; }
+    .logos img { max-height: 100%; max-width: 100%; object-fit: contain; }
+    .logos .txt { font-family: var(--display); font-weight: 700; font-size: 15px; letter-spacing: -0.01em; color: var(--ink); text-align: center; line-height: 1.1; }
+    .names { display: flex; flex-direction: column; }
+    .names a, .names div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; align-items: baseline; }
+    .names span:last-child { color: var(--ink-3); font-size: 12px; text-align: right; }
+    .verdict { margin-top: 12px; font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: -0.02em; line-height: 1.3; max-width: 760px; }
+    .tile.img { padding: 0; }
+    .tile.img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+    .tile.img .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 16px; background: linear-gradient(180deg, rgba(15,15,15,0) 0%, rgba(15,15,15,0.72) 100%); color: #fff; font-size: 12px; font-family: var(--mono); }
+    .story { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: start; }
+    .story .big { font-family: var(--display); font-weight: 600; font-size: 26px; line-height: 1.3; letter-spacing: -0.02em; }
+    .story .t-body + .t-body { margin-top: 12px; }
+    .recog { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .recog .card { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; min-height: 320px; }
+    .recog .card .pic { height: 170px; background: #F4F4F4; position: relative; overflow: hidden; }
+    .recog .card .pic img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
+    .recog .card .pic.slot { background: repeating-linear-gradient(135deg, #F3F3F3 0 8px, #FAFAFA 8px 16px); display: flex; align-items: center; justify-content: center; }
+    .recog .card .body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .recog .card .body .h { font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; line-height: 1.2; }
+    .timeline { border-top: 1px solid var(--line); }
+    .tl { display: grid; grid-template-columns: 110px 1fr 1fr; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+    .tl .yr { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+    .tl .role { font-weight: 600; font-size: 15px; }
+    .tl .role span { display: block; font-weight: 400; color: var(--ink-3); font-size: 13px; }
+    .tl .what { font-size: 14px; color: var(--ink-2); }
+    @media (max-width: 760px) {
+      .thesis, .record, .recog { grid-template-columns: 1fr; }
+      .story { grid-template-columns: 1fr; gap: 20px; }
+      .tl { grid-template-columns: 90px 1fr; }
+      .tl .what { grid-column: 2; }
+    }
+    @media (max-width: 520px) {
+      .logos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tl { grid-template-columns: 1fr; gap: 6px; }
+      .tl .what { grid-column: 1; }
+      .verdict { font-size: 19px; }
+      .story .big { font-size: 22px; }
+    }
+
+    /* v4 */
+    .evhead { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin: 0 0 16px; flex-wrap: wrap; }
+    .evhead a.evt { font-family: var(--display); font-weight: 800; font-size: 34px; letter-spacing: -0.03em; line-height: 1.05; display: inline-flex; align-items: center; gap: 10px; border-bottom: 3px solid var(--accent); padding-bottom: 2px; }
+    .evhead a.evt:hover { color: var(--accent); }
+    .evhead a.evt svg { width: 18px; height: 18px; }
+    .evhead .meta { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+    .ev + .ev { margin-top: 64px; }
+    .evhead .evt-sub { font-family: var(--display); font-weight: 700; font-size: 24px; letter-spacing: -0.02em; line-height: 1.1; }
+    .bento.r300 { grid-auto-rows: 300px; }
+    .bento.r260 { grid-auto-rows: 260px; }
+    .bento.r200 { grid-auto-rows: 200px; }
+    .bento.cols3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .logowall { margin-top: 12px; border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px 22px; }
+    .logowall .t-label { margin-bottom: 14px; display: block; }
+    .lg { display: grid; gap: 10px; }
+    .lg.big { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .lg.small { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+    .lg div { background: #F4F4F4; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 11px 13px; height: 84px; overflow: hidden; }
+    .lg.small div { height: 54px; padding: 8px 10px; border-radius: 10px; }
+    .lg img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .lg .txt { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: -0.01em; text-align: center; line-height: 1.1; }
+    .tile.img .cap a { color: #fff; border-bottom: 1px solid rgba(255,255,255,.6); }
+    a.tile.img:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(15,15,15,0.16); }
+    .tile .list { display: flex; flex-direction: column; gap: 6px; }
+    .tile .list b { font-weight: 600; font-size: 14px; display: block; line-height: 1.25; }
+    .tile .list span { font-size: 12px; opacity: .7; }
+    .tile.ink .list span { opacity: .6; }
+    .vids { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .vid { position: relative; aspect-ratio: 9 / 16; border-radius: 14px; overflow: hidden; background: #111; display: block; transition: transform 180ms ease; }
+    .vid:hover { transform: translateY(-3px); }
+    .vid img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .vid .p { position: absolute; left: 9px; top: 9px; width: 28px; height: 28px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; }
+    .vid .p svg { width: 12px; height: 12px; margin-left: 2px; }
+    .vid .t { position: absolute; left: 9px; right: 9px; bottom: 9px; color: #fff; font-family: var(--mono); font-size: 10.5px; line-height: 1.25; text-shadow: 0 1px 6px rgba(0,0,0,.75); }
+    .vid::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 55%; background: linear-gradient(180deg, rgba(15,15,15,0) 0%, rgba(15,15,15,0.62) 100%); pointer-events: none; }
+    .tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .oneline { margin-top: 18px; font-size: 15px; color: var(--ink-2); }
+    .oneline a { border-bottom: 1px solid var(--line); }
+    .edu { display: flex; flex-direction: column; gap: 6px; }
+    .edu div { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
+    .edu div span:last-child { font-family: var(--mono); font-size: 11px; opacity: .7; flex: none; }
+    @media (max-width: 760px) {
+      .lg.big { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .lg.small { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .vids { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .tools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .evhead a.evt { font-size: 26px; }
+      .tile.tall.lime, .tile.tall.lilac, .tile.tall.ink, .tile.tall.img, .tile.tall.sun { grid-column: span 2; }
+      .bento.r300, .bento.r260, .bento.r200 { grid-auto-rows: minmax(188px, auto); }
+      .bento.cols3 { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .tools { grid-template-columns: 1fr; }
+      .vids { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lg.small { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lg.big { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .lg div { height: 70px; }
+      .bento.r300, .bento.r260, .bento.r200 { grid-auto-rows: minmax(172px, auto); }
+    }
+  </style>
+</helmet>
+
+<div class="page" style="--accent: {{accent}};">
+
+  <nav class="nav">
+    <div class="wrap">
+      <a class="name" href="#top"><span class="dot"></span>Coco Wang</a>
+      <div class="navlinks">
+        <a href="#about">About</a>
+        <a href="#events">Events</a>
+        <a href="#tools">AI systems</a>
+        <a class="btn primary sm" href="#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ABOUT -->
+  <header class="hero" id="top">
+    <div class="wrap" id="about">
+      <div class="hero-grid">
+        <div class="hero-inner">
+          <h1 class="t-display">I build robotics ecosystems and AI agents that help robotics companies go to market <mark>10x faster</mark>.</h1>
+          <p class="t-lead">I connect robotics companies with buyers, partners, and investors — and build the systems that make it scale.</p>
+          <div class="idcard">
+            <p class="line1">Robotics Partnerships &amp; Community Lead, MIE Events</p>
+            <p class="line2">Palo Alto, California</p>
+          </div>
+        </div>
+        <div class="portrait"><img src="portrait.jpg" alt="Coco Wang"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- EVENTS -->
+  <section class="section" id="events">
+    <div class="wrap">
+      <div class="shead">
+        <h2 class="t-head">Building the robotics ecosystem</h2>
+        <span class="t-label">01</span>
+      </div>
+
+      <!-- E1 -->
+      <div class="ev">
+        <div class="evhead">
+          <a class="evt" href="https://luma.com/wkolq6uc" target="_blank" rel="noopener">Humanity &amp; AGI Summit 2026 <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.5 3H9v4.5"></path></svg></a>
+          <span class="meta">Stanford Faculty Club · July 12, 2026 · Vice President, AI Robotics Alliance of America</span>
+        </div>
+        <div class="bento">
+          <div class="tile tangerine tall">
+            <div>
+              <p class="t-label">Robotics for Future Civilization</p>
+              <p class="title" style="margin-top: 8px;">A full day at Stanford. Sold out.</p>
+            </div>
+            <div class="quad">
+              <div><p class="t-num">500+</p><p class="t-small">attendees</p></div>
+              <div><p class="t-num">200K</p><p class="t-small"><a class="in" href="https://m.tmtpost.com/watch/QHsTbw" target="_blank" rel="noopener">online impressions</a></p></div>
+              <div><p class="t-num">40+</p><p class="t-small">speakers</p></div>
+              <div><p class="t-num">40+</p><p class="t-small">community partners</p></div>
+            </div>
+          </div>
+          <div class="tile img span2">
+            <img src="room-harari.jpg" alt="Yuval Noah Harari keynote at the summit" style="object-position: center;">
+            <div class="cap">Yuval Noah Harari keynote · <a href="https://www.linkedin.com/feed/update/urn:li:activity:7480289567577632768" target="_blank" rel="noopener">watch the video</a></div>
+          </div>
+          <div class="tile ink tall">
+            <p class="t-label">Distinguished Speakers</p>
+            <div class="list">
+              <div><b>Yuval Noah Harari</b><span>author of Sapiens</span></div>
+              <div><b>Deepak Pathak</b><span>co-founder &amp; CEO, Skild AI</span></div>
+              <div><b>Daniel Theobald</b><span>Founder, Vecna Robotics</span></div>
+              <div><b>York Yang</b><span>co-founder, Dyna Robotics</span></div>
+              <div><b>Jun Qian</b><span>Vice President, Oracle</span></div>
+              <div><b>Professors</b><span>Stanford, MIT, CMU</span></div>
+            </div>
+          </div>
+          <div class="tile img"><img src="stage-deepak.jpg" alt="Deepak Pathak on stage"><div class="cap">Deepak Pathak · Skild AI</div></div>
+          <div class="tile img"><img src="electric-atmosphere.jpg" alt="Audience filming the show at the summit" style="object-position: center;"><div class="cap">Electric Atmosphere</div></div>
+          <div class="tile img"><img src="summit-group.jpg" alt="Speakers and organizers on stage at the summit"><div class="cap">Speakers &amp; Summit Team</div></div>
+          <div class="tile img"><img src="stage-vps.jpg" alt="Coco Wang on stage"><div class="cap">Opening Remarks</div></div>
+          <div class="tile img"><img src="award-saratoga.jpg" alt="Councilmember Yan Zhao presenting a certificate" style="object-position: center 40%;"><div class="cap">City of Saratoga recognition · Councilmember Yan Zhao</div></div>
+          <div class="tile img"><img src="cert-congress.jpg" alt="Certificate of Special Congressional Recognition" style="object-position: center;"><div class="cap">Congressional Recognition · Rep. Ro Khanna</div></div>
+        </div>
+        <div class="logowall">
+          <span class="t-label">Co-hosts &amp; Sponsors</span>
+          <div class="lg big"><div><img src="sp-tmtpost.png" alt="TMTPost"></div><div><img src="sp-gptdao.svg" alt="GPTDAO"></div><div><img src="sp-starbot.png" alt="Starbot"></div><div><img src="sp-tencent.png" alt="Tencent"></div><div><img src="sp-aether.png" alt="Aether AI"></div><div><img src="sp-agibot.png" alt="AgiBot"></div><div><img src="sp-ffeai.png" alt="FF EAI-Robotics"></div><div><img src="sp-cheetah.png" alt="Cheetah Mobile"></div><div><img src="sp-metix.png" alt="Metix AI"></div><div><img src="sp-robohome.png" alt="Robot Home"></div><div><img src="sp-sanscritic.png" alt="Sanscritic"></div><div><img src="sp-oloso.png" alt="Ololo"></div><div><img src="sp-civasc.png" alt="CivAsc"></div><div><img src="sp-logo2.svg" alt=""></div></div>
+        </div>
+      </div>
+
+      <!-- E2 -->
+      <div class="ev">
+        <div class="evhead">
+          <a class="evt" href="https://luma.com/1btuwmgv" target="_blank" rel="noopener">CES Innovation &amp; Monetization Summit <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.5 3H9v4.5"></path></svg></a>
+          <span class="meta">Las Vegas · January 7, 2026 · Co-founder, RWAWA</span>
+        </div>
+        <div class="bento">
+          <div class="tile lime tall">
+            <div>
+              <p class="t-label">CES 2026 side event</p>
+              <p class="title" style="margin-top: 10px; font-size: 17px; line-height: 1.3;">Cut through a crowded field of 100+ CES side events with a focused program on U.S. market entry, high-value traffic, and AI and robotics-powered productivity.</p>
+            </div>
+            <div class="quad">
+              <div><p class="t-num">240+</p><p class="t-small">paid tickets</p></div>
+              <div><p class="t-num">$229</p><p class="t-small">ticket</p></div>
+              <div><p class="t-num">30+</p><p class="t-small">speakers</p></div>
+              <div><p class="t-num">200+</p><p class="t-small"><a class="in" href="https://www.einpresswire.com/press-releases/report/Vs5d4LWkLa8Iyn8Q" target="_blank" rel="noopener">media outlets</a></p></div>
+            </div>
+          </div>
+          <div class="tile img span2"><img src="ces-5.jpg" alt="Full room at the CES summit" style="object-position: center;"><div class="cap">Full room</div></div>
+          <div class="tile img poster" style="background: #8a5a1e;"><img src="ces-poster.jpg" alt="CES Innovation &amp; Monetization Summit poster" style="object-position: center;"><div class="cap">Official poster</div></div>
+          <div class="tile img"><img src="ces-cherng.jpg" alt="Andrew Cherng on stage at the CES summit" style="object-position: center 30%;"><div class="cap">Featured Speaker · Andrew Cherng, Chairman, Panda Express</div></div>
+          <div class="tile img"><img src="ces-stage.jpg" alt="Coco Wang giving closing remarks"><div class="cap">Closing remarks</div></div>
+          <div class="tile sky">
+            <div class="list">
+              <div><b>Faraday Future</b><span>title sponsor</span></div>
+              <div><b>Master TV MCN · Global CSR Foundation · World Trade Center Hangzhou · GPTDAO</b><span>co-hosts</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- E3 -->
+      <div class="ev">
+        <div class="evhead">
+          <a class="evt" href="https://uspropertyexpo.com/" target="_blank" rel="noopener">America's Property Exhibition 2026 <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.5 3H9v4.5"></path></svg></a>
+          <span class="meta">Las Vegas · Sep 23–25, 2026 · Robotics Partnerships &amp; Community Lead, MIE Events</span>
+        </div>
+        <div class="bento r300">
+          <div class="tile lilac">
+            <div>
+              <p class="t-label">Now · 4th edition</p>
+              <p class="title" style="margin-top: 8px;">I bring the robots to a property show.</p>
+            </div>
+            <div class="quad">
+              <div><p class="t-num">50+</p><p class="t-small">exhibitors</p></div>
+              <div><p class="t-num">100+</p><p class="t-small">speakers</p></div>
+              <div><p class="t-num">20+</p><p class="t-small">countries</p></div>
+              <div><p class="t-num">2,000+</p><p class="t-small">expected attendees</p></div>
+            </div>
+          </div>
+          <div class="tile img poster" style="background: #0d1b34;"><img src="apex-incubator.jpg" alt="Smarter Home &amp; Furnishings 2026 poster" style="object-position: center;"><div class="cap">Incubator Zone</div></div>
+          <div class="tile sun span2" style="justify-content: center; gap: 30px;">
+            <p class="t-label">What I do</p>
+            <div class="list" style="gap: 30px;">
+              <div><b style="font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: -0.02em; line-height: 1.2;">Build the Incubator Zone</b><span style="display: block; margin-top: 6px; font-size: 14px; line-height: 1.45;">Recruit high-potential robotics companies across hospitality, smart home, facilities and logistics</span></div>
+              <div><b style="font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: -0.02em; line-height: 1.2;">Drive Exhibitor &amp; Attendee Growth</b><span style="display: block; margin-top: 6px; font-size: 14px; line-height: 1.45;">Build automated email and LinkedIn growth systems for scalable acquisition</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ev">
+        <div class="evhead">
+          <span class="evt-sub">More events</span>
+        </div>
+        <div class="bento r200">
+          <a class="tile img" href="https://luma.com/ohwxb5df" target="_blank" rel="noopener"><img src="onchain-host.jpg" alt="Coco Wang moderating a panel at the Onchain Frontiers Summit" style="object-position: right center;"><div class="cap">Co-host &amp; Moderating · Onchain Frontiers Summit <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.5 3H9v4.5"></path></svg></div></a>
+          <a class="tile img" href="https://luma.com/8rrvg0ba" target="_blank" rel="noopener"><img src="web3-gala.jpg" alt="Coco Wang at the Women in Web3 Gala" style="object-position: center 30%;"><div class="cap">Co-host · Women in Web3 Gala <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.5 3H9v4.5"></path></svg></div></a>
+          <div class="tile img"><img src="judy-chu.jpg" alt="Coco Wang with Congresswoman Judy Chu" style="object-position: center 30%;"><div class="cap">With Congresswoman Judy Chu</div></div>
+          <div class="tile img"><img src="consul-general.jpg" alt="Coco Wang with the Consul General at the Chinese Consulate General" style="object-position: center 25%;"><div class="cap">Invited by the Chinese Consulate General · With Consul General Li Chen</div></div>
+        </div>
+        <p class="oneline">I have co-hosted 19 events across robotics, AI and emerging technology. <a href="https://luma.com/user/usr-yimQ1ePCrcukQEh" target="_blank" rel="noopener">See them on Luma <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.5 3H9v4.5"></path></svg></a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section class="section" id="tools">
+    <div class="wrap">
+      <div class="shead">
+        <h2 class="t-head">AI systems I build</h2>
+        <span class="t-label">02</span>
+      </div>
+      <div class="bento" style="grid-auto-rows: minmax(196px, auto);">
+        <a class="tile img span2" href="https://drive.google.com/file/d/1Hy8ZlcEpoOYopQkcMmW2a6S4GafxLwrN/view?usp=sharing" target="_blank" rel="noopener">
+          <img src="outreach-poster.jpg" alt="Outreach automation walkthrough">
+          <span class="play"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span>
+          <div class="cap">60-second walkthrough</div>
+        </a>
+        <div class="tile lime span2">
+          <p class="t-label">Outreach automation</p>
+          <div class="bottom">
+            <p class="t-small">Built for a robotics company — runs the whole outreach loop without anyone clicking through it. Every hour it finds companies, scores fit, identifies the decision-maker, verifies contact info, and writes the email. Approve once and it sends on its own, timed to business hours, tracking every contact and follow-up so nobody gets reached twice.</p>
+          </div>
+        </div>
+        <div class="tile ink span2">
+          <p class="t-label">Robot video pipeline</p>
+          <div class="bottom">
+            <p class="title">Every night at midnight it picks a story, cuts the footage, writes, voices and captions a video.</p>
+            <p class="t-small">First video took 40 revisions. Now one pass, zero hands. Nine videos in nine days. Same pipeline cuts product videos for robotics companies.</p>
+          </div>
+        </div>
+        <div class="tile white span2">
+          <p class="t-label">Robotics Events Calendar</p>
+          <div class="funnel" style="margin: 10px 0;">
+            <div class="bar"></div>
+            <div class="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="cap"><span>8000+ scanned</span><span>29 kept</span></div>
+          </div>
+          <p class="t-small">200+ sources, every week · <a class="in" href="https://kew854867-code.github.io/bay-area-robotics-calendar/" target="_blank" rel="noopener">open</a></p>
+        </div>
+      </div>
+      <div class="vids"><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7493546516435861505/" target="_blank" rel="noopener"><img src="vid-0.jpg" alt="Robots Fighting Robots"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Robots Fighting Robots</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7500190963743711232/" target="_blank" rel="noopener"><img src="vid-1.jpg" alt="Robot Long Jump"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Robot Long Jump</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7500553456001302528/" target="_blank" rel="noopener"><img src="vid-3.jpg" alt="Twelve Months"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Twelve Months</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7501444140996505600/" target="_blank" rel="noopener"><img src="vid-6.jpg" alt="Three Cities, One Week"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Three Cities, One Week</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7502047985963487232/" target="_blank" rel="noopener"><img src="vid-7.jpg" alt="Made in Serbia"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">Made in Serbia</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7502384072837615616/" target="_blank" rel="noopener"><img src="vid-8.jpg" alt="The Brain Just Got a New Competitor"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">The Brain Just Got a New Competitor</span></a><a class="vid" href="https://www.linkedin.com/feed/update/urn:li:activity:7500991076426645506/" target="_blank" rel="noopener"><img src="vid-5.jpg" alt="MicroDuck"><span class="p"><svg viewBox="0 0 16 16" fill="#0F0F0F"><path d="M4 2.5v11l9-5.5z"></path></svg></span><span class="t">MicroDuck</span></a></div>
+    </div>
+  </section>
+
+  <!-- PUBLIC ENGAGEMENT -->
+  <section class="section" id="public">
+    <div class="wrap">
+      <div class="shead">
+        <h2 class="t-head">Public engagement - Volunteer</h2>
+        <span class="t-label">03</span>
+      </div>
+      <div class="bento r260 cols3">
+        <div class="tile img"><img src="pe-vivatech.jpg" alt="Volunteer team at VivaTech Paris" style="object-position: center center;"><div class="cap">Volunteer · VivaTech, Paris</div></div>
+        <div class="tile img"><img src="pe-brandfest.jpg" alt="Volunteering at the China Brand Festival in Guangzhou" style="object-position: center center;"><div class="cap">Volunteer · China Brand Festival, Guangzhou</div></div>
+        <div class="tile img"><img src="pe-lunar.jpg" alt="Volunteering at the Chinese New Year Cultural Exhibition in Philadelphia" style="object-position: center center;"><div class="cap">Volunteer · Chinese New Year Cultural Exhibition, Philadelphia</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section" id="contact">
+    <div class="wrap">
+      <div class="shead">
+        <h2 class="t-head">Contact</h2>
+        <span class="t-label">04</span>
+      </div>
+      <div class="close">
+        <p class="q">Need exposure for your robotics product?</p>
+        <p class="q">Want to build your own GTM?</p>
+        <p class="ans">I can help you get in front of the right people — and build the systems to keep reaching them.</p>
+        <a class="go" href="https://calendly.com/kew854867/30min" target="_blank" rel="noopener">Talk to me <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.5 3H9v4.5"></path></svg></a>
+      </div>
+      <div class="direct">
+        <span class="t-label">Direct</span>
+        <a href="mailto:coco@mieexpo.com">coco@mieexpo.com</a>
+        <a href="https://www.linkedin.com/in/cocowang888888/" target="_blank" rel="noopener">LinkedIn <svg class="arrow" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.5 3H9v4.5"></path></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>Coco Wang · Palo Alto, California</span>
+      <span>Robotics ecosystems · AI agents · North America GTM</span>
+    </div>
+  </footer>
+
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#2F5BFF","options":["#2F5BFF","#FF3D7F","#7A3DFF","#0F0F0F"]},"$preview":{"width":1440,"height":6400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#2F5BFF' };
+  }
+}
+</script>
+</body>
+</html>
