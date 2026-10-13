@@ -24,7 +24,8 @@ def decide(label):
     l = label.lower()
     if re.search(EEO, l): return "decline"
     if re.search(r"non-?compete|non-?solicit|bound by (any )?(agreement|contract)|agreements? with (a |any )?(current|former|previous) employer", l): return "no"  # user confirmed: none
-    if re.search(r"arbitrat|criminal|convict|felony|security clearance|citizen", l): return None
+    if re.search(r"arbitrat|agree to (the )?(arbitration|terms)|acknowledge.*(ai policy|policy)|ai policy", l): return "yes"  # user consented in chat
+    if re.search(r"criminal|convict|felony|security clearance|citizen", l): return None
     if "sponsor" in l: return "no" if re.search(r"without|not require|no sponsor", l) else "yes"
     if re.search(r"authori[sz]ed|eligible to work|legally (permitted|entitled)|right to work", l): return "yes"
     if re.search(r"previously (applied|worked|employed)|former (employee|intern)|current(ly)? employ|government employ|related to .*employee|family member", l): return "no"
@@ -56,6 +57,28 @@ def label_of(el):
           return ((l&&l.innerText)||e.getAttribute('aria-label')||e.placeholder||e.name||'').trim();}""", timeout=3000)
     except Exception: return ""
 
+MISSION = {
+ "Anthropic": "building AI systems that are reliable, interpretable and steerable, and making sure they benefit people",
+ "OpenAI": "making sure advanced AI benefits all of humanity",
+ "Cartesia": "building fast, real-time AI that people can talk to naturally",
+ "Perplexity": "making accurate, trustworthy answers accessible to everyone",
+ "Scale AI": "providing the data and infrastructure that move AI forward, including physical AI",
+ "Cursor (Anysphere)": "changing how software gets built with AI",
+ "Cognition": "building AI that can do real software engineering work",
+}
+def essay(label):
+    c, t = JOB["company"], JOB["title"]
+    m = MISSION.get(c, "the mission and the product you are building")
+    l = label.lower()
+    core = (f"I want to help {c} spread its mission of {m}. As a robotics and AI community builder in Silicon Valley, I bring people into the room: "
+            "I co-led the sold-out Humanity & AGI Summit 2026 at the Stanford Faculty Club (500+ attendees, 40+ speakers), hosted the CES Innovation & Monetization Summit (240+ attendees, 30+ speakers), "
+            "and have co-hosted 21 events with a network of 52,000+ across email, WeChat, LinkedIn and RedNote. ")
+    if re.search(r"why .*(company|us|this role|position)|why (" + re.escape(c.lower().split()[0]) + ")|interest|excit|motivat|passion|draw", l):
+        return core + f"The {t} role is where I can turn that network and event experience into growth, partnerships and community for {c}, and I share your belief in where this technology is going."
+    if re.search(r"additional|anything else|tell us more|cover letter|about yourself|introduce", l):
+        return core + "I also build my own tools, including an Outreach Agent that opened 715 LinkedIn conversations with about a one-third reply rate. I am on F-1 OPT and would need H-1B sponsorship, and I live in Palo Alto."
+    return None
+
 def fill(page):
     filled, unresolved = [], []
     # --- uploads
@@ -74,7 +97,9 @@ def fill(page):
             for pat, val in KNOWN:
                 if re.search(pat, lab, re.I): el.fill(val); filled.append(lab[:25]); break
             else:
-                if req: unresolved.append(lab[:90])
+                txt = essay(lab) if el.evaluate("e=>e.tagName")=="TEXTAREA" or len(lab) > 25 else None
+                if txt: el.fill(txt); filled.append("essay:" + lab[:20])
+                elif req: unresolved.append(lab[:90])
         except Exception: pass
     # --- Greenhouse react-select dropdowns
     for inp in page.locator("input.select__input, input[role=combobox]").all():
