@@ -127,7 +127,7 @@ def fill(page):
         try:
             lab = label_of(inp); req = "*" in lab
             if inp.evaluate("e=>!!e.closest('.select__control')?.querySelector('.select__single-value')"): continue
-            want = decide(lab) if not re.search(r"location|city", lab, re.I) else "city"
+            want = decide(lab) if not re.search(r"^location|\(city\)|\bcity\b", lab.strip(), re.I) else "city"
             if want is None:
                 if req: unresolved.append(lab[:90])
                 continue
