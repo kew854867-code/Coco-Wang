@@ -23,7 +23,8 @@ def decide(label):
     stated facts: lives in Palo Alto, F-1 OPT, needs H-1B sponsorship, only Bay Area roles."""
     l = label.lower()
     if re.search(EEO, l): return "decline"
-    if re.search(r"non-?compete|bound by|agreements? with .*employer|restrict|arbitrat|criminal|convict|felony|security clearance|citizen", l): return None
+    if re.search(r"non-?compete|non-?solicit|bound by (any )?(agreement|contract)|agreements? with (a |any )?(current|former|previous) employer", l): return "no"  # user confirmed: none
+    if re.search(r"arbitrat|criminal|convict|felony|security clearance|citizen", l): return None
     if "sponsor" in l: return "no" if re.search(r"without|not require|no sponsor", l) else "yes"
     if re.search(r"authori[sz]ed|eligible to work|legally (permitted|entitled)|right to work", l): return "yes"
     if re.search(r"previously (applied|worked|employed)|former (employee|intern)|current(ly)? employ|government employ|related to .*employee|family member", l): return "no"
@@ -156,6 +157,7 @@ def run_one(browser, job, submit):
             return dict(status="submitted", note="success message on page")
         if re.search(r"spam|captcha|verify you are human|flagged", body, re.I):
             return dict(status="needs_manual", note="blocked by captcha/spam check after submit - submit manually. " + note)
+        page.screenshot(path=str(SHOTS / ("after_" + job["id"].replace(":","_") + ".png")), full_page=True)
         err = page.locator("[class*=error], [role=alert]").all_inner_texts()
         return dict(status="needs_manual", note=f"no success message; page errors={[e[:80] for e in err][:4]}")
     except Exception as e:
