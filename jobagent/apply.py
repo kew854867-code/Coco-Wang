@@ -189,6 +189,8 @@ def run_one(browser, job, submit):
         page.goto(url, wait_until="domcontentloaded", timeout=60000); page.wait_for_timeout(4500)
         if page.locator("text=/no longer (open|available|accepting)|job not found|has been filled|page not found/i").count():
             return dict(status="expired", note="posting closed")
+        if job["ats"] == "greenhouse" and page.locator("input[type=file]").count() == 0:
+            page.goto(f"https://job-boards.greenhouse.io/embed/job_app?for={job['slug']}&token={job['ext_id']}", wait_until="domcontentloaded", timeout=60000); page.wait_for_timeout(4500)
         filled, unresolved = fill(page)
         if "resume" not in filled: unresolved.append("no resume upload field found (apply manually via link)")
         unresolved = sorted(set(u for u in unresolved if u))
