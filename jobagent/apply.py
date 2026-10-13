@@ -47,8 +47,8 @@ def run_one(browser, job, submit):
         unresolved, filled = [], []
         # file uploads
         for inp in page.locator("input[type=file]").all():
-            lab = (find_label(page, inp) or "") + " " + (inp.get_attribute("id") or "") + " " + (inp.get_attribute("name") or "")
             try:
+                lab = (find_label(page, inp) or "") + " " + (inp.get_attribute("id", timeout=3000) or "") + " " + (inp.get_attribute("name", timeout=3000) or "")
                 if re.search(r"cover", lab, re.I): inp.set_input_files(job["cover_pdf"]); filled.append("cover letter PDF")
                 elif re.search(r"resume|cv|attach", lab, re.I): inp.set_input_files(job["resume_pdf"]); filled.append("resume PDF")
             except Exception as e: unresolved.append(f"upload failed: {lab.strip()[:40]} ({e})")
@@ -103,10 +103,10 @@ def run_one(browser, job, submit):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--submit", action="store_true"); ap.add_argument("--limit", type=int, default=100)
-    ap.add_argument("--ats", default="greenhouse,ashby"); a = ap.parse_args()
+    ap.add_argument("--ats", default="greenhouse,ashby"); ap.add_argument("--company", default=""); a = ap.parse_args()
     c = conn()
     rows = c.execute("SELECT * FROM jobs WHERE status IN ('materials_ready','needs_manual') AND resume_pdf IS NOT NULL AND ats IN (%s) ORDER BY score DESC" % ",".join("'%s'" % x for x in a.ats.split(",")))
-    rows = rows.fetchall()[:a.limit]
+    rows = [r for r in rows.fetchall() if not a.company or r['company'] in a.company.split(',')][:a.limit]
     with sync_playwright() as p:
         b = p.chromium.launch(executable_path="/opt/pw-browsers/chromium" if pathlib.Path("/opt/pw-browsers/chromium").exists() else None, args=["--no-sandbox"])
         for r in rows:
