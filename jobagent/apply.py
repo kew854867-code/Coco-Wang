@@ -1,7 +1,7 @@
 """Playwright autofill + submit for Greenhouse (job-boards.greenhouse.io) and Ashby forms.
 Default is DRY RUN. --submit submits ONLY when every required field is answered. A job is 'submitted'
 only when the page itself shows a success message. Never solves/bypasses visible CAPTCHAs."""
-import argparse, datetime, json, pathlib, re
+import argparse, datetime, json, pathlib, re, time
 from playwright.sync_api import sync_playwright
 from db import conn
 
@@ -115,6 +115,26 @@ def essay(label):
         return core + "I also build my own tools, including an Outreach Agent that opened 715 LinkedIn conversations with about a one-third reply rate. I am on F-1 OPT and would need H-1B sponsorship, and I live in Palo Alto."
     return None
 
+LEARNED = ROOT / "profile" / "learned.json"
+def _norm(t): return re.sub(r"[^a-z0-9 ]", "", t.lower()).strip()[:120]
+def ask(lab, options=None, kind="text"):
+    """Ask the user about an unknown required question, in-flight: writes output/question.json and waits for output/answer.txt.
+    Answers are remembered in profile/learned.json so the same question is never asked twice."""
+    book = json.load(open(LEARNED)) if LEARNED.exists() else {}
+    if _norm(lab) in book: return book[_norm(lab)]
+    q, a = ROOT / "output" / "question.json", ROOT / "output" / "answer.txt"
+    a.unlink(missing_ok=True)
+    q.write_text(json.dumps({"job": JOB["company"] + " | " + JOB["title"], "label": lab, "options": options, "kind": kind}, ensure_ascii=False))
+    for _ in range(300):
+        if a.exists() and a.read_text().strip(): break
+        time.sleep(3)
+    q.unlink(missing_ok=True)
+    if not a.exists(): return None
+    ans = a.read_text().strip(); a.unlink()
+    if ans.upper() == "SKIP": return None
+    book[_norm(lab)] = ans; json.dump(book, open(LEARNED, "w"), ensure_ascii=False, indent=1)
+    return ans
+
 def status_option(lab):
     l = lab.lower()
     if re.search(r"granted citizenship in a country other than", l): return True   # Chinese citizen
@@ -142,7 +162,10 @@ def fill(page):
             else:
                 txt = essay(lab) if el.evaluate("e=>e.tagName")=="TEXTAREA" or len(lab) > 25 else None
                 if txt: el.fill(txt); filled.append("essay:" + lab[:20])
-                elif req: unresolved.append(lab[:90])
+                elif req:
+                    ans = ask(lab, None, "text")
+                    if ans: el.fill(ans); filled.append("asked")
+                    else: unresolved.append(lab[:90])
         except Exception: pass
     # --- Greenhouse react-select dropdowns
     for inp in page.locator("input.select__input, input[role=combobox]").all():
@@ -151,8 +174,15 @@ def fill(page):
             if inp.evaluate("e=>!!e.closest('.select__control')?.querySelector('.select__single-value')"): continue
             want = decide(lab) if not re.search(r"^location|\(city\)|\bcity\b", lab.strip(), re.I) else "city"
             if want is None:
-                if req: unresolved.append(lab[:90])
-                continue
+                if not req: continue
+                inp.click(timeout=3000); page.wait_for_timeout(500)
+                opts = page.locator("[role=option]:visible").all_inner_texts()
+                a = ask(lab, opts[:25], "select")
+                if a is None: inp.press("Escape"); unresolved.append(lab[:90]); continue
+                idx = next((i for i, o in enumerate(opts) if o.strip().lower() == a.lower()), None)
+                if idx is None: idx = next((i for i, o in enumerate(opts) if a.lower() in o.lower()), None)
+                if idx is None: inp.press("Escape"); unresolved.append(lab[:90]); continue
+                page.locator("[role=option]:visible").nth(idx).click(timeout=3000); filled.append(lab[:25]); continue
             inp.click(timeout=3000)
             if want == "city": inp.fill("Palo Alto"); page.wait_for_timeout(1200)
             elif want == "school": inp.fill("Temple University"); page.wait_for_timeout(1500)
@@ -178,13 +208,20 @@ def fill(page):
                 if ent.locator("button[class*=active], button[aria-pressed=true]").count(): continue
                 want = decide(lab)
                 if want in ("yes", "no"): ent.locator(f"button:text-is('{want.title()}')").click(); filled.append(lab[:25])
-                elif req: unresolved.append(lab[:90])
+                elif req:
+                    a = ask(lab, ["Yes", "No"], "yesno")
+                    if a and a.lower() in ("yes", "no"): ent.locator(f"button:text-is('{a.title()}')").click(); filled.append(lab[:25])
+                    else: unresolved.append(lab[:90])
             elif radios.count():
                 if ent.locator("input[type=radio]:checked").count(): continue
                 opts = [o.inner_text() for o in ent.locator("label").all()][1:] or []
                 want = decide(lab); idx = pick(opts, want) if want else None
                 if idx is not None: ent.locator("input[type=radio]").nth(idx).check(force=True); filled.append(lab[:25])
-                elif req: unresolved.append(lab[:90])
+                elif req:
+                    a = ask(lab, opts[:25], "radio")
+                    j = next((i for i, o in enumerate(opts) if a and (o.strip().lower() == a.lower() or a.lower() in o.lower())), None)
+                    if j is not None: ent.locator("input[type=radio]").nth(j).check(force=True); filled.append(lab[:25])
+                    else: unresolved.append(lab[:90])
             elif sel.count():
                 if sel.first.input_value(): continue
                 opts = sel.first.locator("option").all_inner_texts(); want = decide(lab); idx = pick(opts, want) if want else None
@@ -208,7 +245,10 @@ def fill(page):
                 nm = el.get_attribute("name")
                 if nm and page.locator(f"input[name='{nm}']:checked").count(): continue
                 if decide(lab) == "yes" and el.get_attribute("type") == "checkbox": el.check(force=True)
-                else: unresolved.append(lab[:90])
+                else:
+                    a = ask(lab, ["check", "leave unchecked"], "checkbox")
+                    if a and a.lower().startswith("check"): el.check(force=True); filled.append("asked")
+                    else: unresolved.append(lab[:90])
         except Exception: pass
     return filled, unresolved
 
