@@ -10,6 +10,7 @@ A = json.load(open(ROOT / "profile" / "facts.json"))["answers_confirmed"]
 SHOTS = ROOT / "output" / "screens"; SHOTS.mkdir(parents=True, exist_ok=True)
 
 KNOWN = [
+ (r"expected (compensation|salary|pay)|salary (expectation|requirement)|compensation (expectation|requirement)|desired (salary|compensation)", "$90,000 - $110,000"),   # user-provided
  (r"address line 1|street address|^address\b|legal address|home address|mailing address", A.get("street","") + ", " + A.get("city","") + ", " + A.get("state","") + " " + A.get("zip","")),
  (r"postal|zip", A.get("zip","")),
  (r"province|^state\b", "California"),
@@ -36,6 +37,7 @@ def decide(label):
     stated facts: lives in Palo Alto, F-1 OPT, needs H-1B sponsorship, only Bay Area roles."""
     l = label.lower()
     if re.search(EEO, l): return "decline"
+    if re.search(r"u\.?s\.? person", l): return "no"       # Chinese citizen, F-1 OPT, no green card/asylum/refugee (user-confirmed)
     if re.search(r"(1|one)[-– ]*(to|-)?[-– ]*(2|two) years.*(post|after).*(graduat|school)|years of experience post graduation", l): return "yes"   # user confirmed
     if re.search(r"plan to work remotely|work from a remote location|work remotely", l): return "yes"                                   # user confirmed
     if re.search(r"live in one of the following states", l): return "no"                                                                # user confirmed (CA not listed)
@@ -46,14 +48,19 @@ def decide(label):
     if re.search(r"authori[sz]ed|eligible to work|legally (permitted|entitled)|right to work", l): return "yes"
     if re.search(r"previously (applied|worked|employed)|former .{0,30}(employee|intern|contractor)|current(ly)? employ|government employ|related to .*employee|family member", l): return "no"
     if re.search(r"(ever|previously|before).*(interview|work(ed)? (for|at)|employ|contract)|have you ever (applied|interviewed|worked)", l): return "no"
+    if re.search(r"based in any of these countries|countries where we are accepting|which country.*(reside|located|based)", l): return "country"
     if re.search(r"cities.*(available|work|willing)|which cities", l): return "bay"
     if re.search(r"from where do you intend|where.*(intend|plan).*work|which office|work location|office location|preferred (office|location)", l): return "bay"
+    if re.search(r"double-check all the information|reviewed and confirmed|ensuring accuracy", l): return "yes"
     if re.search(r"certify|information (provided|submitted).*(true|accurate)|i confirm|i attest", l): return "yes"
     if re.search(r"whatsapp", l): return "yes"
     if re.search(r"within 35 miles of", l): return "yes"       # Palo Alto is ~30 mi from San Francisco
     if re.search(r"^degree\b", l.strip()): return "degree"
     if re.search(r"^school\b", l.strip()): return "school"
-    if re.search(r"u\.?s\.? person", l): return "no"
+    if re.search(r"(1|one)\s*[-–to ]+\s*(2|two) years.*(outbound|prospecting|cold call|sales)|years of .*(outbound|prospecting|cold call)", l): return "yes"   # user confirmed
+    if re.search(r"track record|meeting or exceeding|exceed(ing)? (sales )?(quota|target)|quotas? and kpis?|sales development quota", l): return "yes"   # resume/site: 100+ GTC leads, 2 exhibitors closed, 715 outreach conversations
+    m = re.search(r"(\d+)\s*\+?\s*(?:[-–]\s*\d+\s*)?years?", l)
+    if m and int(m.group(1)) <= 3 and re.search(r"outbound|prospecting|lead gen|partnership|event|community|ecosystem|go-to-market|gtm|business development|marketing|sponsorship|crm|hubspot|linkedin|outreach|sales", l): return "yes"   # <=3 yrs in areas on resume
     if re.search(r"18 years|over the age of 18|at least 18", l): return "yes"
     if re.search(r"office hubs?|days from|relocat|in[- ]person|in[- ]office|on[- ]?site|commut|hybrid|come into|days (a|per|/) ?week|work from (our|the) office", l): return "yes"
     if re.search(r"^country|country of|country\*?$|country (where|you).*(reside|live|based)|what country are you based in|currently reside", l): return "country"
