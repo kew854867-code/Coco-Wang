@@ -82,7 +82,7 @@ def pick(options, want, label=""):
         for i, o in enumerate(low):
             if re.search(rx, o) and not (avoid and re.search(avoid, o)): return i
     if want == "yes":
-        for rx in (r"^(yes|i agree|i acknowledge|i consent|i accept|i have read|i confirm|i am|i do|i will|true|agree|accept)", r"\byes\b|agree|acknowledge|accept"):
+        for rx in (r"^(yes|i agree|i acknowledge|i consent|i accept|i have read|i confirm|i am|i do|i will|true|agree|accept)", r"\byes\b|agree|acknowledge|accept|^consent|^i consent"):
             i = first(rx, r"^no\b|\bnot\b|decline|do not|don't|disagree|assist")
             if i is not None: return i
         return None
@@ -270,8 +270,18 @@ def fill(page):
         except Exception: pass
     return filled, unresolved
 
+def claimed_elsewhere(job):
+    """Skip anything the other agent has already claimed/applied to on the shared Google Sheet (read once, saved locally)."""
+    p = ROOT / "profile" / "claimed_by_other.json"
+    if not p.exists(): return False
+    for co, frag in json.load(open(p)):
+        if co.lower() in job["company"].lower() and frag and frag.lower() in job["title"].lower(): return True
+        if "pagerduty" in job["company"].lower() and "event marketing" in job["title"].lower(): return True
+    return False
+
 def run_one(browser, job, submit):
     global JOB; JOB = job
+    if claimed_elsewhere(job): return dict(status="excluded", note="claimed/applied by the other agent on the shared sheet")
     page = browser.new_page(viewport={"width": 1280, "height": 2200}); ctx = {}
     try:
         url = job["url"]
