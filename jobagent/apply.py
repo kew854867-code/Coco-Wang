@@ -10,12 +10,15 @@ A = json.load(open(ROOT / "profile" / "facts.json"))["answers_confirmed"]
 SHOTS = ROOT / "output" / "screens"; SHOTS.mkdir(parents=True, exist_ok=True)
 
 KNOWN = [
+ (r"^school\b|^university|^college", "Temple University"),
+ (r"^degree\b", "Master of Science (M.S.)"),
+ (r"^discipline|field of study|major", "Innovation Management & Entrepreneurship"),
  (r"cities.*(available|work|willing)|which cities|available to work in", "San Francisco Bay Area (Palo Alto, CA)"),
  (r"(most recent|current).*(work|employ|compan)|where have you (most recently )?worked", "MIE Events"),
  (r"college|universit|school (did|do) you|alma mater", "Temple University"),
  (r"full legal name|legal name as it appears", A["first_name"] + " " + A["last_name"]),
  (r"(start|available).*date|date.*(start|available)|earliest.*start|when can you start", "Immediately"),
- (r"how did you hear|where did you hear|how did you find", "LinkedIn"),
+ (r"how did you (first )?(hear|find)|where did you (first )?(hear|find)", "LinkedIn"),
  (r"from where do you intend|where.*(intend|plan).*work|work location|which office", "Bay Area (Palo Alto, CA)"),
  (r"(current|most recent).*(job )?title|^current title", "Robotics Partnerships & Community Lead"), (r"(current|most recent).*(employer|company)|^current company", "MIE Events"),
  (r"^first name|legal first|preferred first", A["first_name"]), (r"^last name|legal last|surname", A["last_name"]),
@@ -35,7 +38,7 @@ def decide(label):
     if re.search(r"criminal|convict|felony|security clearance|citizen", l): return None
     if "sponsor" in l: return "no" if re.search(r"without|not require|no sponsor", l) else "yes"
     if re.search(r"authori[sz]ed|eligible to work|legally (permitted|entitled)|right to work", l): return "yes"
-    if re.search(r"previously (applied|worked|employed)|former (employee|intern)|current(ly)? employ|government employ|related to .*employee|family member", l): return "no"
+    if re.search(r"previously (applied|worked|employed)|former .{0,30}(employee|intern|contractor)|current(ly)? employ|government employ|related to .*employee|family member", l): return "no"
     if re.search(r"(ever|previously|before).*(interview|work(ed)? (for|at)|employ|contract)|have you ever (applied|interviewed|worked)", l): return "no"
     if re.search(r"cities.*(available|work|willing)|which cities", l): return "bay"
     if re.search(r"from where do you intend|where.*(intend|plan).*work|which office|work location|office location|preferred (office|location)", l): return "bay"
@@ -44,9 +47,9 @@ def decide(label):
     if re.search(r"relocat|in[- ]person|in[- ]office|on[- ]?site|commut|hybrid|come into|days (a|per|/) ?week|work from (our|the) office", l): return "yes"
     if re.search(r"based in|reside|live in|located in|currently (located|based)", l):
         return "yes" if re.search(r"bay area|san francisco|palo alto|california|silicon valley|san jose|mountain view|\bca\b", l) else None
-    if re.search(r"^country|country of|country\*?$", l): return "country"
-    if re.search(r"how did you (hear|find)|source|where did you (hear|find)", l): return "hear"
-    if re.search(r"privacy|data (processing|protection)|terms (of|and)|i (have )?read|consent to (the )?(processing|collection|storage)", l): return "yes"
+    if re.search(r"^country|country of|country\*?$|country (where|you).*(reside|live|based)|what country are you based in|currently reside", l): return "country"
+    if re.search(r"how did you (first )?(hear|find)|source|where did you (first )?(hear|find)", l): return "hear"
+    if re.search(r"privacy|data (processing|protection)|terms (of|and)|i (have )?read|consent .{0,30}(process|collect|stor)", l): return "yes"
     return None
 
 def pick(options, want, label=""):
@@ -89,7 +92,7 @@ def essay(label):
     core = (f"I want to help {c} spread its mission of {m}. As a robotics and AI community builder in Silicon Valley, I bring people into the room: "
             "I co-led the sold-out Humanity & AGI Summit 2026 at the Stanford Faculty Club (500+ attendees, 40+ speakers), hosted the CES Innovation & Monetization Summit (240+ attendees, 30+ speakers), "
             "and have co-hosted 21 events with a network of 52,000+ across email, WeChat, LinkedIn and RedNote. ")
-    if re.search(r"why .*(company|us|this role|position)|why (" + re.escape(c.lower().split()[0]) + ")|interest|excit|motivat|passion|draw", l):
+    if re.search(r"why .*(company|\bus\b|this role|position|join|want to work|interested)|why (" + re.escape(c.lower().split()[0]) + ")|interest|excit|motivat|passion|draw", l):
         return core + f"The {t} role is where I can turn that network and event experience into growth, partnerships and community for {c}, and I share your belief in where this technology is going."
     if re.search(r"\bai\b.*(use|day|work|tool)|use .*\bai\b|artificial intelligence.*(use|work)|how do you use", l):
         return ("I use AI every day as part of how I work. I use Claude to build and run my own tools: an Outreach Agent that scores prospects, finds the decision-maker, verifies contacts and drafts personalized emails for one-click approval "
