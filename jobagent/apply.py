@@ -21,9 +21,14 @@ KNOWN = [
 SENSITIVE = r"authori[sz]|sponsor|visa|citizen|legal(ly)?|veteran|disabilit|gender|race|ethnic|hispanic|pronoun|sexual|criminal|convict|relocat|salary|compensation|notice|signature|background check|agree|consent|referr|how did you hear|start date|clearance|export"
 
 def find_label(page, el):
-    return page.evaluate("""e=>{ const id=e.id; let l=id?document.querySelector(`label[for="${CSS.escape(id)}"]`):null;
+    try:
+        return _find_label(page, el)
+    except Exception:
+        return ""
+def _find_label(page, el):
+    return el.evaluate("""e=>{ const id=e.id; let l=id?document.querySelector(`label[for="${CSS.escape(id)}"]`):null;
         if(!l) l=e.closest('label'); if(!l){const f=e.closest('[class*=field],[class*=Field],.application-field,fieldset,div'); l=f&&f.querySelector('label,legend');}
-        return ((l&&l.innerText)||e.getAttribute('aria-label')||e.placeholder||e.name||'').trim(); }""", el.element_handle())
+        return ((l&&l.innerText)||e.getAttribute('aria-label')||e.placeholder||e.name||'').trim(); }""", timeout=3000)
 
 def run_one(browser, job, submit):
     result = dict(status="needs_manual", note="")
@@ -34,7 +39,7 @@ def run_one(browser, job, submit):
             url = f"https://job-boards.greenhouse.io/{job['slug']}/jobs/{job['ext_id']}"
         elif job["ats"] == "ashby":
             url = url.rstrip("/") + "/application"
-        page.goto(url, wait_until="networkidle", timeout=60000)
+        page.goto(url, wait_until="domcontentloaded", timeout=60000); page.wait_for_timeout(4000)
         if page.locator("text=/no longer (open|available|accepting)|job not found|position has been filled/i").count():
             return dict(status="expired", note="posting closed")
         if job["ats"] == "greenhouse" and page.locator("#application-form, form").count() == 0:
