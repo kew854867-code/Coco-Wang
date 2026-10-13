@@ -10,6 +10,9 @@ A = json.load(open(ROOT / "profile" / "facts.json"))["answers_confirmed"]
 SHOTS = ROOT / "output" / "screens"; SHOTS.mkdir(parents=True, exist_ok=True)
 
 KNOWN = [
+ (r"address line 1|street address|^address\b|legal address|home address|mailing address", A.get("street","") + ", " + A.get("city","") + ", " + A.get("state","") + " " + A.get("zip","")),
+ (r"postal|zip", A.get("zip","")),
+ (r"province|^state\b", "California"),
  (r"^school\b|^university|^college", "Temple University"),
  (r"^degree\b", "Master of Science (M.S.)"),
  (r"^discipline|field of study|major", "Innovation Management & Entrepreneurship"),
@@ -33,6 +36,9 @@ def decide(label):
     stated facts: lives in Palo Alto, F-1 OPT, needs H-1B sponsorship, only Bay Area roles."""
     l = label.lower()
     if re.search(EEO, l): return "decline"
+    if re.search(r"(1|one)[-– ]*(to|-)?[-– ]*(2|two) years.*(post|after).*(graduat|school)|years of experience post graduation", l): return "yes"   # user confirmed
+    if re.search(r"plan to work remotely|work from a remote location|work remotely", l): return "yes"                                   # user confirmed
+    if re.search(r"live in one of the following states", l): return "no"                                                                # user confirmed (CA not listed)
     if re.search(r"non-?compete|non-?solicit|bound by (any )?(agreement|contract)|agreements? with (a |any )?(current|former|previous) employer", l): return "no"  # user confirmed: none
     if re.search(r"arbitrat|agree to (the )?(arbitration|terms)|acknowledge.*(ai policy|policy)|ai policy", l): return "yes"  # user consented in chat
     if re.search(r"criminal|convict|felony|security clearance|citizen", l): return None
@@ -43,13 +49,15 @@ def decide(label):
     if re.search(r"cities.*(available|work|willing)|which cities", l): return "bay"
     if re.search(r"from where do you intend|where.*(intend|plan).*work|which office|work location|office location|preferred (office|location)", l): return "bay"
     if re.search(r"certify|information (provided|submitted).*(true|accurate)|i confirm|i attest", l): return "yes"
+    if re.search(r"whatsapp", l): return "yes"
+    if re.search(r"u\.?s\.? person", l): return "no"
     if re.search(r"18 years|over the age of 18|at least 18", l): return "yes"
-    if re.search(r"relocat|in[- ]person|in[- ]office|on[- ]?site|commut|hybrid|come into|days (a|per|/) ?week|work from (our|the) office", l): return "yes"
+    if re.search(r"office hubs?|days from|relocat|in[- ]person|in[- ]office|on[- ]?site|commut|hybrid|come into|days (a|per|/) ?week|work from (our|the) office", l): return "yes"
+    if re.search(r"^country|country of|country\*?$|country (where|you).*(reside|live|based)|what country are you based in|currently reside", l): return "country"
     if re.search(r"based in|reside|live in|located in|currently (located|based)", l):
         return "yes" if re.search(r"bay area|san francisco|palo alto|california|silicon valley|san jose|mountain view|\bca\b", l) else None
-    if re.search(r"^country|country of|country\*?$|country (where|you).*(reside|live|based)|what country are you based in|currently reside", l): return "country"
     if re.search(r"how did you (first )?(hear|find)|source|where did you (first )?(hear|find)", l): return "hear"
-    if re.search(r"privacy|data (processing|protection)|terms (of|and)|i (have )?read|consent .{0,30}(process|collect|stor)", l): return "yes"
+    if re.search(r"privacy|data (processing|protection)|terms (of|and)|i (have )?read|consent", l): return "yes"
     return None
 
 def pick(options, want, label=""):
@@ -65,7 +73,7 @@ def pick(options, want, label=""):
     if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none")
     if want == "decline": return first(r"decline|don'?t wish|do not wish|prefer not|not (wish|want) to|choose not|rather not")
     if want == "bay": return first(r"san francisco|bay area|palo alto|mountain view|sunnyvale|san jose|menlo park|south san|redwood|oakland|santa clara|remote")
-    if want == "country": return first(r"^united states|^usa|^u\.s")
+    if want == "country": return first(r"^united states|^usa$|^us$|^u\.s")
     if want == "hear": return first(r"linkedin") if first(r"linkedin") is not None else (first(r"job board|internet|online|website|other"))
     return None
 
@@ -102,6 +110,11 @@ def essay(label):
     if re.search(r"additional|anything else|tell us more|cover letter|about yourself|introduce", l):
         return core + "I also build my own tools, including an Outreach Agent that opened 715 LinkedIn conversations with about a one-third reply rate. I am on F-1 OPT and would need H-1B sponsorship, and I live in Palo Alto."
     return None
+
+def status_option(lab):
+    l = lab.lower()
+    if re.search(r"granted citizenship in a country other than", l): return True   # Chinese citizen
+    return False
 
 def fill(page):
     filled, unresolved = [], []
@@ -179,6 +192,9 @@ def fill(page):
         try:
             if el.is_visible() and el.evaluate("e=>e.type=='checkbox'||e.type=='radio'") and not el.is_checked():
                 lab = label_of(el)
+                if status_option(lab): el.check(force=True); filled.append("status"); continue
+                nm = el.get_attribute("name")
+                if nm and page.locator(f"input[name='{nm}']:checked").count(): continue
                 if decide(lab) == "yes" and el.get_attribute("type") == "checkbox": el.check(force=True)
                 else: unresolved.append(lab[:90])
         except Exception: pass
