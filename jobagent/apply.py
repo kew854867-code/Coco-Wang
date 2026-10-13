@@ -38,6 +38,7 @@ def decide(label):
     stated facts: lives in Palo Alto, F-1 OPT, needs H-1B sponsorship, only Bay Area roles."""
     l = label.lower()
     if re.search(EEO, l): return "decline"
+    if re.search(r"describes your work authorization|authorization to work in the country where you live", l): return "authsp"   # F-1 OPT: authorized now, needs sponsorship later (user-confirmed)
     if re.search(r"u\.?s\.? person", l): return "no"       # Chinese citizen, F-1 OPT, no green card/asylum/refugee (user-confirmed)
     if re.search(r"(1|one)[-– ]*(to|-)?[-– ]*(2|two) years.*(post|after).*(graduat|school)|years of experience post graduation", l): return "yes"   # user confirmed
     if re.search(r"plan to work remotely|work from a remote location|work remotely", l): return "yes"                                   # user confirmed
@@ -85,6 +86,7 @@ def pick(options, want, label=""):
         return None
     if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none")
     if want == "decline": return first(r"decline|don'?t wish|do not wish|prefer not|not (wish|want) to|choose not|rather not")
+    if want == "authsp": return first(r"valid work permit which needs to be sponsored|work permit.*(needs|requires).*sponsor|need.*sponsor")
     if want == "state": return first(r"^california|^ca$")
     if want == "degree": return first(r"^master.?s degree|^master of science|^master")
     if want == "bay": return first(r"san francisco|bay area|palo alto|mountain view|sunnyvale|san jose|menlo park|south san|redwood|oakland|santa clara|remote")
