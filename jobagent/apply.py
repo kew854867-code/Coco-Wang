@@ -120,6 +120,7 @@ def _norm(t): return re.sub(r"[^a-z0-9 ]", "", t.lower()).strip()[:120]
 def ask(lab, options=None, kind="text"):
     """Ask the user about an unknown required question, in-flight: writes output/question.json and waits for output/answer.txt.
     Answers are remembered in profile/learned.json so the same question is never asked twice."""
+    if not _norm(lab): return None          # unreadable label: nothing sensible to ask
     book = json.load(open(LEARNED)) if LEARNED.exists() else {}
     if _norm(lab) in book: return book[_norm(lab)]
     q, a = ROOT / "output" / "question.json", ROOT / "output" / "answer.txt"
