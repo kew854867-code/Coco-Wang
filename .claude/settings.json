@@ -24,7 +24,8 @@
       "mcp__Google_Sheets__update_formulas",
       "mcp__Google_Sheets__update_values",
       "mcp__Google_Sheets__update_spreadsheet",
-      "mcp__Google_Sheets__append_values"
+      "mcp__Google_Sheets__append_values",
+      "mcp__Gmail__trash_thread"
     ]
   }
 }
