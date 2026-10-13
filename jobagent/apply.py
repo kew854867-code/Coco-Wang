@@ -50,6 +50,9 @@ def decide(label):
     if re.search(r"from where do you intend|where.*(intend|plan).*work|which office|work location|office location|preferred (office|location)", l): return "bay"
     if re.search(r"certify|information (provided|submitted).*(true|accurate)|i confirm|i attest", l): return "yes"
     if re.search(r"whatsapp", l): return "yes"
+    if re.search(r"within 35 miles of", l): return "yes"       # Palo Alto is ~30 mi from San Francisco
+    if re.search(r"^degree\b", l.strip()): return "degree"
+    if re.search(r"^school\b", l.strip()): return "school"
     if re.search(r"u\.?s\.? person", l): return "no"
     if re.search(r"18 years|over the age of 18|at least 18", l): return "yes"
     if re.search(r"office hubs?|days from|relocat|in[- ]person|in[- ]office|on[- ]?site|commut|hybrid|come into|days (a|per|/) ?week|work from (our|the) office", l): return "yes"
@@ -72,6 +75,7 @@ def pick(options, want, label=""):
         return None
     if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none")
     if want == "decline": return first(r"decline|don'?t wish|do not wish|prefer not|not (wish|want) to|choose not|rather not")
+    if want == "degree": return first(r"^master.?s degree|^master of science|^master")
     if want == "bay": return first(r"san francisco|bay area|palo alto|mountain view|sunnyvale|san jose|menlo park|south san|redwood|oakland|santa clara|remote")
     if want == "country": return first(r"^united states|^usa$|^us$|^u\.s")
     if want == "hear": return first(r"linkedin") if first(r"linkedin") is not None else (first(r"job board|internet|online|website|other"))
@@ -151,10 +155,13 @@ def fill(page):
                 continue
             inp.click(timeout=3000)
             if want == "city": inp.fill("Palo Alto"); page.wait_for_timeout(1200)
-            elif want == "country": inp.fill("United States"); page.wait_for_timeout(500)
+            elif want == "school": inp.fill("Temple University"); page.wait_for_timeout(1500)
+            elif want == "country": page.wait_for_timeout(400)
             else: page.wait_for_timeout(400)
             opts = page.locator("[role=option]:visible").all_inner_texts()
-            idx = 0 if want == "city" and opts else pick(opts, want)
+            idx = 0 if want in ("city", "school") and opts else pick(opts, want)
+            if idx is None and want == "country":
+                inp.fill("United States"); page.wait_for_timeout(600); opts = page.locator("[role=option]:visible").all_inner_texts(); idx = pick(opts, want)
             if idx is None: inp.press("Escape"); (unresolved.append(lab[:90]) if req else None); continue
             page.locator("[role=option]:visible").nth(idx).click(timeout=3000); filled.append(lab[:25])
         except Exception as e:
@@ -187,12 +194,17 @@ def fill(page):
                 if decide(lab) == "yes": cbs.first.check(force=True); filled.append("consent")
                 elif req: unresolved.append(lab[:90])
         except Exception: pass
+    try:
+        if page.locator("text=/anticipate working/i").count():
+            page.get_by_label("US", exact=True).first.check(force=True, timeout=3000); filled.append("work country US")
+    except Exception: pass
     # --- anything still empty & required (checkboxes, radios on Greenhouse)
     for el in page.locator("input[type=checkbox][required], input[type=radio][required], [aria-required=true]:not(.select__input)").all():
         try:
             if el.is_visible() and el.evaluate("e=>e.type=='checkbox'||e.type=='radio'") and not el.is_checked():
                 lab = label_of(el)
                 if status_option(lab): el.check(force=True); filled.append("status"); continue
+                if re.search(r"^(us|usa|united states)$", lab.strip(), re.I) and page.locator("text=/anticipate working/i").count(): el.check(force=True); filled.append("work country US"); continue
                 nm = el.get_attribute("name")
                 if nm and page.locator(f"input[name='{nm}']:checked").count(): continue
                 if decide(lab) == "yes" and el.get_attribute("type") == "checkbox": el.check(force=True)
