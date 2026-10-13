@@ -1,8 +1,30 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3 apply.py --submit *)",
-      "Bash(python3 apply.py *)"
+      "Bash(python3 apply.py *)",
+      "Bash(python3 report.py)",
+      "Bash(python3 discover.py)",
+      "Bash(python3 materials.py *)",
+      "Bash(python3 -c *)",
+      "Bash(cd /home/user/Coco-Wang/jobagent && *)",
+      "Bash(printf * > output/code.txt)",
+      "Bash(rm -f output/code.txt output/pending_code.txt)",
+      "Bash(sleep *)",
+      "Bash(cat *)",
+      "Bash(tail *)",
+      "Bash(ls *)",
+      "Bash(pgrep *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push)",
+      "mcp__Gmail__search_threads",
+      "mcp__Gmail__get_thread",
+      "mcp__Google_Sheets__get_spreadsheet",
+      "mcp__Google_Sheets__get_values",
+      "mcp__Google_Sheets__update_formulas",
+      "mcp__Google_Sheets__update_values",
+      "mcp__Google_Sheets__update_spreadsheet",
+      "mcp__Google_Sheets__append_values"
     ]
   }
 }
