@@ -193,7 +193,21 @@ def run_one(browser, job, submit):
         if unresolved: return dict(status="needs_manual", note=note)
         if not submit: return dict(status="materials_ready", note="dry run: all fields answered, not submitted")
         page.locator("button[type=submit]:has-text('Submit'), input[type=submit], button:has-text('Submit application'), button:has-text('Submit Application')").first.click()
-        page.wait_for_timeout(20000)
+        page.wait_for_timeout(6000)
+        if page.locator("text=/security code/i").count() and not re.search(r"thank you for applying", page.inner_text("body"), re.I):
+            # Greenhouse emails an 8-char code to the applicant's Gmail; the assistant reads it via the Gmail connector and drops it in code.txt
+            CODE = ROOT / "output" / "code.txt"; PEND = ROOT / "output" / "pending_code.txt"
+            CODE.unlink(missing_ok=True); PEND.write_text(job["id"] + " | " + job["company"])
+            for _ in range(60):
+                if CODE.exists() and CODE.read_text().strip(): break
+                page.wait_for_timeout(3000)
+            PEND.unlink(missing_ok=True)
+            if not (CODE.exists() and CODE.read_text().strip()): return dict(status="needs_manual", note="security code not provided in time")
+            code = CODE.read_text().strip(); CODE.unlink()
+            page.locator("input[id^=security-input], input[aria-label*=ecurity], input[name*=ecurity]").first.click()
+            page.keyboard.type(code, delay=120)
+            page.locator("button:has-text('Submit application'), button[type=submit]").first.click()
+        page.wait_for_timeout(15000)
         body = page.inner_text("body")
         if re.search(r"thank you for applying|application (has been )?(submitted|received)|thanks for applying|we.ve received your application|successfully submitted|your application was submitted", body, re.I):
             return dict(status="submitted", note="success message on page")
