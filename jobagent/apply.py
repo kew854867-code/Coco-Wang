@@ -82,7 +82,7 @@ def pick(options, want, label=""):
         for i, o in enumerate(low):
             if re.search(rx, o) and not (avoid and re.search(avoid, o)): return i
     if want == "yes":
-        for rx in (r"^(yes|i agree|i acknowledge|i consent|i accept|i have read|i confirm|i am|i do|i will|true|agree|accept)", r"\byes\b|agree|acknowledge|accept|^consent|^i consent"):
+        for rx in (r"^(yes|i agree|i acknowledge|i consent|i accept|i have read|i confirm|i am|i do|i will|true|agree|accept)", r"\byes\b|agree|acknowledge|accept|^consent|^i consent|reviewed and confirmed|i confirm"):
             i = first(rx, r"^no\b|\bnot\b|decline|do not|don't|disagree|assist")
             if i is not None: return i
         return None
@@ -321,7 +321,9 @@ def run_one(browser, job, submit):
         if re.search(r"spam|captcha|verify you are human|flagged", body, re.I):
             return dict(status="needs_manual", note="blocked by captcha/spam check after submit - submit manually. " + note)
         page.screenshot(path=str(SHOTS / ("after_" + job["id"].replace(":","_") + ".png")), full_page=True)
-        err = page.locator("[class*=error], [role=alert]").all_inner_texts()
+        err = [e.strip() for e in page.locator("[class*=error], [role=alert]").all_inner_texts() if e.strip()]
+        if not err:   # no success text and no validation errors: these hosted pages usually DID accept it -> never requeue (avoids duplicates); verify by email
+            return dict(status="submitted", note="submitted, success text not recognised and no errors; verify by confirmation email")
         return dict(status="needs_manual", note=f"no success message; page errors={[e[:80] for e in err][:4]}")
     except Exception as e:
         return dict(status="failed", note=f"{type(e).__name__}: {str(e)[:160]}")
