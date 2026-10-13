@@ -52,7 +52,11 @@ def pick(options, want, label=""):
     def first(rx, avoid=None):
         for i, o in enumerate(low):
             if re.search(rx, o) and not (avoid and re.search(avoid, o)): return i
-    if want == "yes": return first(r"^(yes|i am|i do|i will|true|agree)", r"relocation|not|assist") if first(r"^(yes|i am|i do|i will|true|agree)", r"relocation|not|assist") is not None else first(r"^yes|\byes\b")
+    if want == "yes":
+        for rx in (r"^(yes|i agree|i acknowledge|i consent|i accept|i have read|i confirm|i am|i do|i will|true|agree|accept)", r"\byes\b|agree|acknowledge|accept"):
+            i = first(rx, r"^no\b|\bnot\b|decline|do not|don't|disagree|assist")
+            if i is not None: return i
+        return None
     if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none")
     if want == "decline": return first(r"decline|don'?t wish|do not wish|prefer not|not (wish|want) to|choose not|rather not")
     if want == "bay": return first(r"san francisco|bay area|palo alto|mountain view|sunnyvale|san jose|menlo park|south san|redwood|oakland|santa clara|remote")
