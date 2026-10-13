@@ -10,6 +10,7 @@ A = json.load(open(ROOT / "profile" / "facts.json"))["answers_confirmed"]
 SHOTS = ROOT / "output" / "screens"; SHOTS.mkdir(parents=True, exist_ok=True)
 
 KNOWN = [
+ (r"cities.*(available|work|willing)|which cities|available to work in", "San Francisco Bay Area (Palo Alto, CA)"),
  (r"(most recent|current).*(work|employ|compan)|where have you (most recently )?worked", "MIE Events"),
  (r"college|universit|school (did|do) you|alma mater", "Temple University"),
  (r"full legal name|legal name as it appears", A["first_name"] + " " + A["last_name"]),
