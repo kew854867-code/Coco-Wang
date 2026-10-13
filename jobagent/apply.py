@@ -65,6 +65,8 @@ def decide(label):
     if m and int(m.group(1)) <= 3 and re.search(r"outbound|prospecting|lead gen|partnership|event|community|ecosystem|go-to-market|gtm|business development|marketing|sponsorship|crm|hubspot|linkedin|outreach|sales", l): return "yes"   # <=3 yrs in areas on resume
     if re.search(r"(experience|familiar).{0,40}(crm|hubspot|salesforce|sales navigator|gong|apollo|outreach tool|sales engagement|pipeline)", l): return "yes"   # resume: HubSpot CRM, Apollo, LinkedIn
     if re.search(r"which state (do you )?(reside|live)|state of residence|state you (reside|live)|state.*(currently )?reside", l): return "state"
+    if re.search(r"unable to employ candidates residing|reside in one of these regions|cannot employ candidates residing", l): return "no"   # California is not in the excluded lists
+    if re.search(r"(planned|executed|organi[sz]ed|hosted|produced|managed|run|ran).{0,60}(events?|meetups?|dinners?|summits?|conferences?|activations?|webinars?)", l) and re.search(r"have you|do you|experience", l): return "yes"   # 21 events, Stanford 500+ summit, CES 240+
     if re.search(r"18 years|over the age of 18|at least 18", l): return "yes"
     if re.search(r"office hubs?|days from|relocat|in[- ]person|in[- ]office|on[- ]?site|commut|hybrid|come into|days (a|per|/) ?week|work from (our|the) office", l): return "yes"
     if re.search(r"^country|country of|country\*?$|country (where|you).*(reside|live|based)|what country are you based in|currently reside", l): return "country"
