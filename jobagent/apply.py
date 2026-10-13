@@ -10,6 +10,12 @@ A = json.load(open(ROOT / "profile" / "facts.json"))["answers_confirmed"]
 SHOTS = ROOT / "output" / "screens"; SHOTS.mkdir(parents=True, exist_ok=True)
 
 KNOWN = [
+ (r"(most recent|current).*(work|employ|compan)|where have you (most recently )?worked", "MIE Events"),
+ (r"college|universit|school (did|do) you|alma mater", "Temple University"),
+ (r"full legal name|legal name as it appears", A["first_name"] + " " + A["last_name"]),
+ (r"(start|available).*date|date.*(start|available)|earliest.*start|when can you start", "Immediately"),
+ (r"how did you hear|where did you hear|how did you find", "LinkedIn"),
+ (r"from where do you intend|where.*(intend|plan).*work|work location|which office", "Bay Area (Palo Alto, CA)"),
  (r"(current|most recent).*(job )?title|^current title", "Robotics Partnerships & Community Lead"), (r"(current|most recent).*(employer|company)|^current company", "MIE Events"),
  (r"^first name|legal first|preferred first", A["first_name"]), (r"^last name|legal last|surname", A["last_name"]),
  (r"^(full |legal )?name\b(?!.*(company|referr))", A["first_name"] + " " + A["last_name"]),
@@ -29,6 +35,9 @@ def decide(label):
     if "sponsor" in l: return "no" if re.search(r"without|not require|no sponsor", l) else "yes"
     if re.search(r"authori[sz]ed|eligible to work|legally (permitted|entitled)|right to work", l): return "yes"
     if re.search(r"previously (applied|worked|employed)|former (employee|intern)|current(ly)? employ|government employ|related to .*employee|family member", l): return "no"
+    if re.search(r"(ever|previously|before).*(interview|work(ed)? (for|at)|employ|contract)|have you ever (applied|interviewed|worked)", l): return "no"
+    if re.search(r"from where do you intend|where.*(intend|plan).*work|which office|work location|office location|preferred (office|location)", l): return "bay"
+    if re.search(r"certify|information (provided|submitted).*(true|accurate)|i confirm|i attest", l): return "yes"
     if re.search(r"18 years|over the age of 18|at least 18", l): return "yes"
     if re.search(r"relocat|in[- ]person|in[- ]office|on[- ]?site|commut|hybrid|come into|days (a|per|/) ?week|work from (our|the) office", l): return "yes"
     if re.search(r"based in|reside|live in|located in|currently (located|based)", l):
@@ -46,6 +55,7 @@ def pick(options, want, label=""):
     if want == "yes": return first(r"^(yes|i am|i do|i will|true|agree)", r"relocation|not|assist") if first(r"^(yes|i am|i do|i will|true|agree)", r"relocation|not|assist") is not None else first(r"^yes|\byes\b")
     if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none")
     if want == "decline": return first(r"decline|don'?t wish|do not wish|prefer not|not (wish|want) to|choose not|rather not")
+    if want == "bay": return first(r"san francisco|bay area|palo alto|mountain view|sunnyvale|san jose|menlo park|south san|redwood|oakland|santa clara|remote")
     if want == "country": return first(r"^united states|^usa|^u\.s")
     if want == "hear": return first(r"linkedin") if first(r"linkedin") is not None else (first(r"job board|internet|online|website|other"))
     return None
@@ -75,6 +85,11 @@ def essay(label):
             "and have co-hosted 21 events with a network of 52,000+ across email, WeChat, LinkedIn and RedNote. ")
     if re.search(r"why .*(company|us|this role|position)|why (" + re.escape(c.lower().split()[0]) + ")|interest|excit|motivat|passion|draw", l):
         return core + f"The {t} role is where I can turn that network and event experience into growth, partnerships and community for {c}, and I share your belief in where this technology is going."
+    if re.search(r"\bai\b.*(use|day|work|tool)|use .*\bai\b|artificial intelligence.*(use|work)|how do you use", l):
+        return ("I use AI every day as part of how I work. I use Claude to build and run my own tools: an Outreach Agent that scores prospects, finds the decision-maker, verifies contacts and drafts personalized emails for one-click approval "
+                "(I opened 715 LinkedIn conversations, about one-third replied); a Robotics Events Calendar that scans 200+ sources weekly and has indexed 8,000+ events; and an automated robotics video pipeline "
+                "(trend tracking, research, script, AI voiceover, captions) publishing to 3,000+ LinkedIn followers. At MIE Events I built a single-source-of-truth content workflow so speaker and agenda changes reach 10+ deliverables within 30 minutes. "
+                "I treat AI as a way to do more careful, personalized outreach and operations, and I always review its output before it goes out.")
     if re.search(r"additional|anything else|tell us more|cover letter|about yourself|introduce", l):
         return core + "I also build my own tools, including an Outreach Agent that opened 715 LinkedIn conversations with about a one-third reply rate. I am on F-1 OPT and would need H-1B sponsorship, and I live in Palo Alto."
     return None
@@ -94,6 +109,8 @@ def fill(page):
         try:
             if not el.is_visible() or el.input_value(): continue
             lab = label_of(el); req = "*" in lab or el.get_attribute("required") is not None or el.get_attribute("aria-required") == "true"
+            if re.search(r"date", lab, re.I) and re.search(r"start|available|pick", lab + (el.get_attribute("placeholder") or ""), re.I):
+                el.fill("10/13/2026"); el.press("Enter"); filled.append("date"); continue
             for pat, val in KNOWN:
                 if re.search(pat, lab, re.I): el.fill(val); filled.append(lab[:25]); break
             else:
@@ -176,7 +193,7 @@ def run_one(browser, job, submit):
         if unresolved: return dict(status="needs_manual", note=note)
         if not submit: return dict(status="materials_ready", note="dry run: all fields answered, not submitted")
         page.locator("button[type=submit]:has-text('Submit'), input[type=submit], button:has-text('Submit application'), button:has-text('Submit Application')").first.click()
-        page.wait_for_timeout(7000)
+        page.wait_for_timeout(20000)
         body = page.inner_text("body")
         if re.search(r"thank you for applying|application (has been )?(submitted|received)|thanks for applying|we.ve received your application|successfully submitted|your application was submitted", body, re.I):
             return dict(status="submitted", note="success message on page")
