@@ -57,7 +57,7 @@ def evaluate(job, domain):
     t, jd, loc = job["title"], job["jd"], job["location"]
     tl, jl = t.lower(), jd.lower()
     if not re.search(INCLUDE, tl) or re.search(EXCLUDE, tl): return None
-    if not is_us(loc): return None
+    if not re.search(BAY, loc.lower()): return None  # Bay Area only (user lives in Palo Alto)
     score, pros, gaps, verify = 0, [], [], []
     # title fit
     core = r"community|events?\b|partnership|business development|ecosystem|developer relations|devrel|developer advocate|founder|startup|alliances"
@@ -90,7 +90,7 @@ def evaluate(job, domain):
     elif re.search(SPONSOR_YES, jl): spons = "YES"; score += 12; pros.append("JD mentions visa sponsorship")
     else: verify.append("Sponsorship not stated - ask recruiter / check company history")
     verify.append("Work authorization question must be answered by you")
-    tier = "priority" if score >= 62 and spons != "NO" else "consider" if score >= 48 and spons != "NO" else "skip"
+    tier = "priority" if score >= 62 and spons != "NO" else "consider" if score >= 36 and spons != "NO" else "skip"
     return dict(score=score, tier=tier, pros="; ".join(pros), gaps="; ".join(gaps) or "None obvious", verify="; ".join(verify), sponsor_signal=spons)
 
 def main():
