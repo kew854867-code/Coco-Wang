@@ -46,6 +46,7 @@ def decide(label):
     if re.search(r"non-?compete|non-?solicit|bound by (any )?(agreement|contract)|agreements? with (a |any )?(current|former|previous) employer", l): return "no"  # user confirmed: none
     if re.search(r"arbitrat|agree to (the )?(arbitration|terms)|acknowledge.*(ai policy|policy)|ai policy", l): return "yes"  # user consented in chat
     # sanctions/export-control checkbox groups (Databricks): Chinese citizen on F-1 OPT, resident of the US -> "none of the above" / "not applicable"
+    if re.search(r"^acknowledge\b|^i acknowledge", l): return "yes"
     if re.search(r"^none of the above|^not applicable \(i\.e", l): return "yes"
     if re.search(r"cuba, iran, north korea|^u\.s\. (citizen|non-citizen national|permanent resident)|^individual granted (asylum|refugee)|^individual granted (citizenship|permanent residency) in a country", l): return "no"
     if re.search(r"criminal|convict|felony|security clearance|citizen", l): return None
@@ -94,7 +95,9 @@ def pick(options, want, label=""):
     if want == "authsp": return first(r"valid work permit which needs to be sponsored|work permit.*(needs|requires).*sponsor|need.*sponsor")
     if want == "state": return first(r"^california|^ca$")
     if want == "degree": return first(r"^master.?s degree|^master of science|^master")
-    if want == "bay": return first(r"san francisco|bay area|palo alto|mountain view|sunnyvale|san jose|menlo park|south san|redwood|oakland|santa clara|remote")
+    if want == "bay":
+        i = first(r"san francisco|bay area|palo alto|mountain view|sunnyvale|san jose|menlo park|south san|redwood|oakland|santa clara|remote")
+        return i if i is not None else first(r"^yes\b")
     if want == "country": return first(r"^united states|^usa$|^us$|^u\.s")
     if want == "hear": return first(r"linkedin") if first(r"linkedin") is not None else (first(r"job board|internet|online|website|other"))
     return None
