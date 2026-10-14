@@ -277,7 +277,8 @@ def fill(page):
                 nm = el.get_attribute("name")
                 if nm and page.locator(f"input[name='{nm}']:checked").count(): continue
                 if re.search(r"cuba, iran, north korea|^u\.s\. (citizen|non-citizen national|permanent resident)|^individual granted (asylum|refugee|citizenship|permanent residency)", lab.strip(), re.I): continue   # sanctions group: none apply -> leave unchecked
-                if decide(lab) == "yes" and el.get_attribute("type") == "checkbox": el.check(force=True)
+                if re.fullmatch(r"n/?a|none|none of the above|not applicable", lab.strip().lower()) and el.get_attribute("type") == "checkbox": el.check(force=True); filled.append("N/A box")
+                elif decide(lab) == "yes" and el.get_attribute("type") == "checkbox": el.check(force=True)
                 else:
                     a = ask(lab, ["check", "leave unchecked"], "checkbox")
                     if a and a.lower().startswith("check"): el.check(force=True); filled.append("asked")
