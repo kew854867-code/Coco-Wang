@@ -287,6 +287,11 @@ def fill(page):
         try:
             if not el.evaluate("e=>{let g=e.closest('fieldset,[role=group]')||e.parentElement.parentElement.parentElement;return !!(g&&g.querySelector('input[type=checkbox]:checked'))}"): unresolved.append(lab)
         except Exception: unresolved.append(lab)
+    for el in page.locator("input[type=text], input[type=url]").all():   # re-fill LinkedIn/website if a later re-render cleared them
+        try:
+            lab = label_of(el)
+            if el.is_visible() and not el.input_value() and re.search(r"linkedin", lab, re.I): el.fill(A["linkedin"]); filled.append("linkedin(refill)")
+        except Exception: pass
     return filled, unresolved
 
 def claimed_elsewhere(job):
