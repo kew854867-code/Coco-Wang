@@ -16,6 +16,8 @@ KNOWN = [
  (r"postal|zip", A.get("zip","")),
  (r"province|^state\b", "California"),
  (r"^school\b|^university|^college", "Temple University"),
+ (r"^start date year|^start year|education.*start.*year", "2024"),   # Temple University M.S., 2024-2026 (resume)
+ (r"^end date year|^end year|graduation year|education.*end.*year", "2026"),
  (r"^degree\b", "Master of Science (M.S.)"),
  (r"^discipline|field of study|major", "Innovation Management & Entrepreneurship"),
  (r"cities.*(available|work|willing)|which cities|available to work in", "San Francisco Bay Area (Palo Alto, CA)"),
@@ -97,7 +99,7 @@ def pick(options, want, label=""):
     if want == "state": return first(r"^california|^ca$")
     if want == "degree": return first(r"^master.?s degree|^master of science|^master")
     if want == "bay":
-        i = first(r"san francisco|bay area|palo alto|mountain view|sunnyvale|san jose|menlo park|south san|redwood|oakland|santa clara|remote")
+        i = first(r"san francisco|\bsf\b|bay area|palo alto|mountain view|sunnyvale|san jose|menlo park|south san|redwood|oakland|santa clara|remote")
         return i if i is not None else first(r"^yes\b")
     if want == "country": return first(r"^united states|^usa$|^us$|^u\.s")
     if want == "hear": return first(r"linkedin") if first(r"linkedin") is not None else (first(r"job board|internet|online|website|other"))
@@ -182,7 +184,7 @@ def fill(page):
         try:
             if not el.is_visible() or el.input_value(): continue
             lab = label_of(el); req = "*" in lab or el.get_attribute("required") is not None or el.get_attribute("aria-required") == "true"
-            if re.search(r"date", lab, re.I) and re.search(r"start|available|pick", lab + (el.get_attribute("placeholder") or ""), re.I):
+            if re.search(r"date", lab, re.I) and not re.search(r"year|month", lab, re.I) and re.search(r"start|available|pick", lab + (el.get_attribute("placeholder") or ""), re.I):
                 el.fill("10/13/2026"); el.press("Enter"); filled.append("date"); continue
             for pat, val in KNOWN:
                 if re.search(pat, lab, re.I): el.fill(val); filled.append(lab[:25]); break
