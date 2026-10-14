@@ -38,7 +38,8 @@ def decide(label):
     stated facts: lives in Palo Alto, F-1 OPT, needs H-1B sponsorship, only Bay Area roles."""
     l = label.lower()
     if re.search(EEO, l): return "decline"
-    if re.search(r"describes your work authorization|authorization to work in the country where you live", l): return "authsp"   # F-1 OPT: authorized now, needs sponsorship later (user-confirmed)
+    if re.search(r"describes your work authorization|authorization to work in the country where you live|best describes your right to work", l): return "authsp"   # F-1 OPT: authorized now, needs sponsorship later (user-confirmed)
+    if re.search(r"currently reside in the location|reside in the (location|country)", l): return "yes"   # lives in Palo Alto, US
     if re.search(r"u\.?s\.? person", l): return "no"       # Chinese citizen, F-1 OPT, no green card/asylum/refugee (user-confirmed)
     if re.search(r"(1|one)[-– ]*(to|-)?[-– ]*(2|two) years.*(post|after).*(graduat|school)|years of experience post graduation", l): return "yes"   # user confirmed
     if re.search(r"plan to work remotely|work from a remote location|work remotely", l): return "yes"                                   # user confirmed
@@ -92,7 +93,7 @@ def pick(options, want, label=""):
         return None
     if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none")
     if want == "decline": return first(r"decline|don'?t wish|do not wish|prefer not|not (wish|want) to|choose not|rather not")
-    if want == "authsp": return first(r"valid work permit which needs to be sponsored|work permit.*(needs|requires).*sponsor|need.*sponsor")
+    if want == "authsp": return first(r"valid work permit which needs to be sponsored|work permit.*(needs|requires).*sponsor|need.*sponsor|do not require sponsorship now, but will in the future")
     if want == "state": return first(r"^california|^ca$")
     if want == "degree": return first(r"^master.?s degree|^master of science|^master")
     if want == "bay":
@@ -163,13 +164,17 @@ def status_option(lab):
     return False
 
 def fill(page):
-    filled, unresolved = [], []
+    filled, unresolved, unchecked = [], [], []
     # --- uploads
     for inp in page.locator("input[type=file]").all():
         try:
             lab = label_of(inp) + " " + (inp.get_attribute("id", timeout=2000) or "") + " " + (inp.get_attribute("name", timeout=2000) or "")
-            if re.search(r"cover", lab, re.I): inp.set_input_files(JOB["cover_pdf"]); filled.append("cover")
-            elif re.search(r"resume|cv|attach", lab, re.I): inp.set_input_files(JOB["resume_pdf"]); filled.append("resume")
+            if re.search(r"cover", lab, re.I): inp.set_input_files(JOB["cover_pdf"]); page.wait_for_timeout(3000); filled.append("cover")
+            elif re.search(r"resume|cv|attach", lab, re.I): inp.set_input_files(JOB["resume_pdf"]); page.wait_for_timeout(3000); filled.append("resume")
+        except Exception: pass
+    for sel, key, tag in (("input#cover_letter", "cover_pdf", "cover"), ("input#resume", "resume_pdf", "resume")):   # explicit Greenhouse ids as a fallback
+        try:
+            if tag not in filled and page.locator(sel).count() and JOB.get(key): page.locator(sel).first.set_input_files(JOB[key]); page.wait_for_timeout(3000); filled.append(tag)
         except Exception: pass
     page.wait_for_timeout(1500)
     # --- plain text inputs / textareas
@@ -273,8 +278,12 @@ def fill(page):
                 else:
                     a = ask(lab, ["check", "leave unchecked"], "checkbox")
                     if a and a.lower().startswith("check"): el.check(force=True); filled.append("asked")
-                    else: unresolved.append(lab[:90])
+                    else: unchecked.append((el, lab[:90]))
         except Exception: pass
+    for el, lab in unchecked:   # a required checkbox group is fine as long as one of its boxes is checked
+        try:
+            if not el.evaluate("e=>{let g=e.closest('fieldset,[role=group]')||e.parentElement.parentElement.parentElement;return !!(g&&g.querySelector('input[type=checkbox]:checked'))}"): unresolved.append(lab)
+        except Exception: unresolved.append(lab)
     return filled, unresolved
 
 def claimed_elsewhere(job):
