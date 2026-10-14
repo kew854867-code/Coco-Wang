@@ -45,6 +45,9 @@ def decide(label):
     if re.search(r"live in one of the following states", l): return "no"                                                                # user confirmed (CA not listed)
     if re.search(r"non-?compete|non-?solicit|bound by (any )?(agreement|contract)|agreements? with (a |any )?(current|former|previous) employer", l): return "no"  # user confirmed: none
     if re.search(r"arbitrat|agree to (the )?(arbitration|terms)|acknowledge.*(ai policy|policy)|ai policy", l): return "yes"  # user consented in chat
+    # sanctions/export-control checkbox groups (Databricks): Chinese citizen on F-1 OPT, resident of the US -> "none of the above" / "not applicable"
+    if re.search(r"^none of the above|^not applicable \(i\.e", l): return "yes"
+    if re.search(r"cuba, iran, north korea|^u\.s\. (citizen|non-citizen national|permanent resident)|^individual granted (asylum|refugee)|^individual granted (citizenship|permanent residency) in a country", l): return "no"
     if re.search(r"criminal|convict|felony|security clearance|citizen", l): return None
     if "sponsor" in l: return "no" if re.search(r"without|not require|no sponsor", l) else "yes"
     if re.search(r"authori[sz]ed|eligible to work|legally (permitted|entitled)|right to work", l): return "yes"
@@ -262,6 +265,7 @@ def fill(page):
                 if re.search(r"^(us|usa|united states)$", lab.strip(), re.I) and page.locator("text=/anticipate working/i").count(): el.check(force=True); filled.append("work country US"); continue
                 nm = el.get_attribute("name")
                 if nm and page.locator(f"input[name='{nm}']:checked").count(): continue
+                if re.search(r"cuba, iran, north korea|^u\.s\. (citizen|non-citizen national|permanent resident)|^individual granted (asylum|refugee|citizenship|permanent residency)", lab.strip(), re.I): continue   # sanctions group: none apply -> leave unchecked
                 if decide(lab) == "yes" and el.get_attribute("type") == "checkbox": el.check(force=True)
                 else:
                     a = ask(lab, ["check", "leave unchecked"], "checkbox")
