@@ -50,6 +50,7 @@ def decide(label):
     if re.search(r"confirm receipt|may use ai tools|use ai tools to assist", l): return "yes"
     if re.search(r"arbitrat|agree to (the )?(arbitration|terms)|acknowledge.*(ai policy|policy)|ai policy", l): return "yes"  # user consented in chat
     # sanctions/export-control checkbox groups (Databricks): Chinese citizen on F-1 OPT, resident of the US -> "none of the above" / "not applicable"
+    if re.search(r"^i agree|^agree\b|^i consent|^i accept", l.strip()): return "yes"
     if re.search(r"^acknowledge\b|^i acknowledge", l): return "yes"
     if re.search(r"^none of the above|^not applicable \(i\.e", l): return "yes"
     if re.search(r"cuba, iran, north korea|^u\.s\. (citizen|non-citizen national|permanent resident)|^individual granted (asylum|refugee)|^individual granted (citizenship|permanent residency) in a country", l): return "no"
