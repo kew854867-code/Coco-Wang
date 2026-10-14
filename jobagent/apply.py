@@ -34,7 +34,7 @@ KNOWN = [
  (r"linkedin", A["linkedin"]), (r"website|portfolio|personal (site|url)|github|websites", A["website"]),
  (r"current location|^location|city|where are you (based|located)|current address", A["location"]),
 ]
-EEO = r"gender|race|ethnic|hispanic|veteran|disabilit|sexual orientation|transgender|pronoun|lgbt"
+EEO = r"gender|identify your sex|\bsex\b|race|ethnic|hispanic|veteran|disabilit|sexual orientation|transgender|pronoun|lgbt"
 def decide(label):
     """Question -> 'yes'|'no'|'decline'|'country'|'hear'|None (None = needs the human). Answers follow the user's
     stated facts: lives in Palo Alto, F-1 OPT, needs H-1B sponsorship, only Bay Area roles."""
