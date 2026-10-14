@@ -47,6 +47,7 @@ def decide(label):
     if re.search(r"plan to work remotely|work from a remote location|work remotely", l): return "yes"                                   # user confirmed
     if re.search(r"live in one of the following states", l): return "no"                                                                # user confirmed (CA not listed)
     if re.search(r"non-?compete|non-?solicit|bound by (any )?(agreement|contract)|agreements? with (a |any )?(current|former|previous) employer", l): return "no"  # user confirmed: none
+    if re.search(r"confirm receipt|may use ai tools|use ai tools to assist", l): return "yes"
     if re.search(r"arbitrat|agree to (the )?(arbitration|terms)|acknowledge.*(ai policy|policy)|ai policy", l): return "yes"  # user consented in chat
     # sanctions/export-control checkbox groups (Databricks): Chinese citizen on F-1 OPT, resident of the US -> "none of the above" / "not applicable"
     if re.search(r"^acknowledge\b|^i acknowledge", l): return "yes"
@@ -89,11 +90,11 @@ def pick(options, want, label=""):
         for i, o in enumerate(low):
             if re.search(rx, o) and not (avoid and re.search(avoid, o)): return i
     if want == "yes":
-        for rx in (r"^(yes|i agree|i acknowledge|i consent|i accept|i have read|i confirm|i am|i do|i will|true|agree|accept)", r"\byes\b|agree|acknowledge|accept|^consent|^i consent|reviewed and confirmed|i confirm"):
+        for rx in (r"^(yes|confirmed|i agree|i acknowledge|i consent|i accept|i have read|i confirm|i am|i do|i will|true|agree|accept)", r"\byes\b|agree|acknowledge|accept|^consent|^i consent|reviewed and confirmed|i confirm"):
             i = first(rx, r"^no\b|\bnot\b|decline|do not|don't|disagree|assist")
             if i is not None: return i
         return None
-    if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none|^never")
+    if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none|^never|^i have never")
     if want == "decline": return first(r"decline|don'?t wish|do not wish|prefer not|not (wish|want) to|choose not|rather not")
     if want == "authsp": return first(r"valid work permit which needs to be sponsored|work permit.*(needs|requires).*sponsor|need.*sponsor|do not require sponsorship now, but will in the future")
     if want == "state": return first(r"^california|^ca$")
