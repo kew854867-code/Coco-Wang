@@ -70,7 +70,7 @@ def decide(label):
     if re.search(r"(1|one)\s*[-–to ]+\s*(2|two) years.*(outbound|prospecting|cold call|sales)|years of .*(outbound|prospecting|cold call)", l): return "yes"   # user confirmed
     if re.search(r"track record|meeting or exceeding|exceed(ing)? (sales )?(quota|target)|quotas? and kpis?|sales development quota", l): return "yes"   # resume/site: 100+ GTC leads, 2 exhibitors closed, 715 outreach conversations
     m = re.search(r"(\d+)\s*\+?\s*(?:[-–]\s*\d+\s*)?years?", l)
-    if m and int(m.group(1)) <= 3 and re.search(r"outbound|prospecting|lead gen|partnership|event|community|ecosystem|go-to-market|gtm|business development|marketing|sponsorship|crm|hubspot|linkedin|outreach|sales", l): return "yes"   # <=3 yrs in areas on resume
+    if m and int(m.group(1)) <= 5 and re.search(r"outbound|prospecting|lead gen|partnership|event|community|ecosystem|go-to-market|gtm|business development|marketing|sponsorship|crm|hubspot|linkedin|outreach|sales", l): return "yes"   # <=3 yrs in areas on resume
     if re.search(r"(experience|familiar).{0,40}(crm|hubspot|salesforce|sales navigator|gong|apollo|outreach tool|sales engagement|pipeline)", l): return "yes"   # resume: HubSpot CRM, Apollo, LinkedIn
     if re.search(r"which state (do you )?(reside|live)|state of residence|state you (reside|live)|state.*(currently )?reside", l): return "state"
     if re.search(r"unable to employ candidates residing|reside in one of these regions|cannot employ candidates residing", l): return "no"   # California is not in the excluded lists
