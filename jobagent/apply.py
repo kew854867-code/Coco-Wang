@@ -226,6 +226,9 @@ def fill(page):
             idx = 0 if want in ("city", "school") and opts else pick(opts, want)
             if idx is None and want == "country":
                 inp.fill("United States"); page.wait_for_timeout(600); opts = page.locator("[role=option]:visible").all_inner_texts(); idx = pick(opts, want)
+            if idx is None and want == "degree" and not opts:   # searchable dropdown (Stripe): options load after typing
+                inp.fill("Master"); page.wait_for_timeout(1200); opts = page.locator("[role=option]:visible").all_inner_texts(); idx = pick(opts, want) if opts else None
+                if idx is None and opts: idx = 0
             if idx is None: print("   no option:", lab[:40], want, opts[:6]); inp.press("Escape"); (unresolved.append(lab[:90]) if req else None); continue
             page.locator("[role=option]:visible").nth(idx).click(timeout=3000); filled.append(lab[:25])
         except Exception as e:
