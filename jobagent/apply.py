@@ -193,7 +193,7 @@ def fill(page):
         try:
             lab = label_of(inp); req = "*" in lab
             if inp.evaluate("e=>!!e.closest('.select__control')?.querySelector('.select__single-value')"): continue
-            want = decide(lab) if not re.search(r"^location|\(city\)|\bcity\b", lab.strip(), re.I) else "city"
+            want = decide(lab) if not re.search(r"^location|\(city\)|^city\b|^(current )?city", lab.strip(), re.I) else "city"
             if want is None:
                 if not req: continue
                 inp.click(timeout=3000); page.wait_for_timeout(500)
@@ -213,7 +213,7 @@ def fill(page):
             idx = 0 if want in ("city", "school") and opts else pick(opts, want)
             if idx is None and want == "country":
                 inp.fill("United States"); page.wait_for_timeout(600); opts = page.locator("[role=option]:visible").all_inner_texts(); idx = pick(opts, want)
-            if idx is None: inp.press("Escape"); (unresolved.append(lab[:90]) if req else None); continue
+            if idx is None: print("   no option:", lab[:40], want, opts[:6]); inp.press("Escape"); (unresolved.append(lab[:90]) if req else None); continue
             page.locator("[role=option]:visible").nth(idx).click(timeout=3000); filled.append(lab[:25])
         except Exception as e:
             print("   dropdown err:", lab[:30], str(e)[:150])
