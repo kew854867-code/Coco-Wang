@@ -297,7 +297,9 @@ def fill(page):
     for el in page.locator("input[type=text], input[type=url]").all():   # re-fill LinkedIn/website if a later re-render cleared them
         try:
             lab = label_of(el)
-            if el.is_visible() and not el.input_value() and re.search(r"linkedin", lab, re.I): el.fill(A["linkedin"]); filled.append("linkedin(refill)")
+            if el.is_visible() and not el.input_value():
+                for pat, val in KNOWN:
+                    if re.search(pat, lab, re.I): el.fill(val); filled.append("refill:" + lab[:20]); break
         except Exception: pass
     return filled, unresolved
 
