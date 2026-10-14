@@ -310,7 +310,7 @@ def run_one(browser, job, submit):
     page = browser.new_page(viewport={"width": 1280, "height": 2200}); ctx = {}
     try:
         url = job["url"]
-        if job["ats"] == "greenhouse": url = job["url"] if ".eu.greenhouse.io" in job["url"] else f"https://job-boards.greenhouse.io/{job['slug']}/jobs/{job['ext_id']}"
+        if job["ats"] == "greenhouse": url = job["url"] if (".eu.greenhouse.io" in job["url"] or "greenhouse.io/embed" in job["url"]) else f"https://job-boards.greenhouse.io/{job['slug']}/jobs/{job['ext_id']}"
         elif job["ats"] == "ashby": url = url.rstrip("/") + "/application"
         page.goto(url, wait_until="domcontentloaded", timeout=60000); page.wait_for_timeout(4500)
         if page.locator("text=/no longer (open|available|accepting)|job not found|has been filled|page not found/i").count():
