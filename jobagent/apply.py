@@ -41,7 +41,7 @@ def decide(label):
     l = label.lower()
     if re.search(EEO, l): return "decline"
     if re.search(r"describes your work authorization|authorization to work in the country where you live|best describes your right to work", l): return "authsp"   # F-1 OPT: authorized now, needs sponsorship later (user-confirmed)
-    if re.search(r"currently reside in the location|reside in the (location|country)", l): return "yes"   # lives in Palo Alto, US
+    if re.search(r"currently reside in the location|reside in the (location|country)|^do you (currently )?(reside|live) in", l): return "yes"   # lives in Palo Alto, US
     if re.search(r"u\.?s\.? person", l): return "no"       # Chinese citizen, F-1 OPT, no green card/asylum/refugee (user-confirmed)
     if re.search(r"(1|one)[-– ]*(to|-)?[-– ]*(2|two) years.*(post|after).*(graduat|school)|years of experience post graduation", l): return "yes"   # user confirmed
     if re.search(r"plan to work remotely|work from a remote location|work remotely", l): return "yes"                                   # user confirmed
@@ -93,7 +93,7 @@ def pick(options, want, label=""):
             i = first(rx, r"^no\b|\bnot\b|decline|do not|don't|disagree|assist")
             if i is not None: return i
         return None
-    if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none")
+    if want == "no": return first(r"^(no|i am not|i do not|i have not|false)\b|^none|^never")
     if want == "decline": return first(r"decline|don'?t wish|do not wish|prefer not|not (wish|want) to|choose not|rather not")
     if want == "authsp": return first(r"valid work permit which needs to be sponsored|work permit.*(needs|requires).*sponsor|need.*sponsor|do not require sponsorship now, but will in the future")
     if want == "state": return first(r"^california|^ca$")
