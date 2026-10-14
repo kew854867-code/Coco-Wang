@@ -32,6 +32,7 @@ KNOWN = [
  (r"^(full |legal )?name\b(?!.*(company|referr))", A["first_name"] + " " + A["last_name"]),
  (r"e-?mail", A["email"]), (r"phone", A["phone"]),
  (r"linkedin", A["linkedin"]), (r"website|portfolio|personal (site|url)|github|websites", A["website"]),
+ (r"home address|street address|mailing address|^address( line)?( 1)?\b|residential address", "3432 Alma Village Cir, Palo Alto, CA 94306"),
  (r"current location|^location|city|where are you (based|located)|current address", A["location"]),
 ]
 EEO = r"gender|identify your sex|\bsex\b|race|ethnic|hispanic|veteran|disabilit|sexual orientation|transgender|pronoun|lgbt"
